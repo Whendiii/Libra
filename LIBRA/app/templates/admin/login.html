@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Admin Login | LIBRA
+{% endblock %}
+
+
+{% block content %}
+
+<section class="admin-login-page">
+
+
+    <div class="admin-login-wrapper">
+
+
+        <div class="admin-login-card">
+
+
+            <!-- =================================================
+                 ISU LOGO
+            ================================================== -->
+
+            <div class="admin-login-icon admin-login-isu-box">
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='img/isu_logo.png'
+                    ) }}"
+                    alt="Isabela State University Logo"
+                    class="admin-login-isu-logo"
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 HEADING
+            ================================================== -->
+
+            <span class="admin-login-eyebrow">
+                LIBRA ADMINISTRATION
+            </span>
+
+
+            <h1>
+                Welcome Back
+            </h1>
+
+
+            <p>
+                Sign in to manage thesis records,
+                borrowing transactions, and library analytics.
+            </p>
+
+
+
+            <!-- =================================================
+                 ERROR
+            ================================================== -->
+
+            {% if error %}
+
+                <div class="admin-login-error">
+
+                    <i class="fa-solid fa-circle-exclamation"></i>
+
+                    <span>
+                        {{ error }}
+                    </span>
+
+                </div>
+
+            {% endif %}
+
+
+
+            <!-- =================================================
+                 LOGIN FORM
+            ================================================== -->
+
+            <form
+                method="POST"
+                class="admin-login-form"
+            >
+
+
+                <!-- USERNAME -->
+
+                <div class="admin-login-field">
+
+                    <label>
+                        Username
+                    </label>
+
+
+                    <div class="admin-login-input">
+
+                        <i class="fa-regular fa-user"></i>
+
+                        <input
+                            type="text"
+                            name="username"
+                            placeholder="Enter username"
+                            autocomplete="username"
+                            required
+                            autofocus
+                        >
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- PASSWORD -->
+
+                <div class="admin-login-field">
+
+                    <label>
+                        Password
+                    </label>
+
+
+                    <div class="admin-login-input">
+
+                        <i class="fa-solid fa-lock"></i>
+
+
+                        <input
+                            id="adminPassword"
+                            type="password"
+                            name="password"
+                            placeholder="Enter password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+
+                        <button
+                            type="button"
+                            id="toggleAdminPassword"
+                            class="password-toggle"
+                            aria-label="Show password"
+                        >
+
+                            <i class="fa-regular fa-eye"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- SIGN IN -->
+
+                <button
+                    type="submit"
+                    class="admin-login-submit"
+                >
+                    Sign In
+                </button>
+
+
+            </form>
+
+
+
+            <!-- =================================================
+                 SECURITY NOTE
+            ================================================== -->
+
+            <div class="admin-login-note">
+
+                <i class="fa-solid fa-shield-halved"></i>
+
+                <span>
+                    Authorized library personnel only.
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+{% endblock %}
+
+
+
+{% block scripts %}
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const password =
+            document.getElementById(
+                "adminPassword"
+            );
+
+        const toggle =
+            document.getElementById(
+                "toggleAdminPassword"
+            );
+
+
+        if (!password || !toggle) {
+            return;
+        }
+
+
+        toggle.addEventListener(
+            "click",
+            function () {
+
+                const hidden =
+                    password.type === "password";
+
+
+                password.type =
+                    hidden
+                    ? "text"
+                    : "password";
+
+
+                toggle.innerHTML =
+                    hidden
+                    ? '<i class="fa-regular fa-eye-slash"></i>'
+                    : '<i class="fa-regular fa-eye"></i>';
+
+
+                toggle.setAttribute(
+                    "aria-label",
+                    hidden
+                        ? "Hide password"
+                        : "Show password"
+                );
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}

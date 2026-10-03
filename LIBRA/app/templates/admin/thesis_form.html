@@ -1,0 +1,975 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}
+    {% if mode == "edit" %}
+        Edit Thesis | LIBRA
+    {% else %}
+        Add Thesis | LIBRA
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="thesis-editor-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
+    <div class="thesis-editor-header">
+
+        <div class="thesis-editor-header-copy">
+
+            <a
+                href="{{ url_for('admin.thesis_management') }}"
+                class="thesis-editor-back"
+            >
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to Thesis Management</span>
+            </a>
+
+            <div class="thesis-editor-title-row">
+
+                <div class="thesis-editor-title-icon">
+                    {% if mode == "edit" %}
+                        <i class="fa-regular fa-pen-to-square"></i>
+                    {% else %}
+                        <i class="fa-solid fa-book-medical"></i>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <span class="thesis-editor-eyebrow">
+                        THESIS MANAGEMENT
+                    </span>
+
+                    <h1>
+                        {% if mode == "edit" %}
+                            Edit Thesis Record
+                        {% else %}
+                            Add New Thesis
+                        {% endif %}
+                    </h1>
+
+                    <p>
+                        {% if mode == "edit" %}
+                            Update the selected academic research record in the LIBRA repository.
+                        {% else %}
+                            Encode a thesis, capstone, or academic research record for the LIBRA collection.
+                        {% endif %}
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="thesis-editor-status">
+            <i class="fa-solid fa-shield-halved"></i>
+            <div>
+                <strong>Librarian Access</strong>
+                <span>Required fields are marked with *</span>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         VALIDATION ERRORS
+    ====================================================== -->
+
+    {% if errors %}
+
+        <div class="thesis-editor-errors">
+
+            <div class="thesis-editor-error-icon">
+                <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+
+            <div>
+                <strong>Please review the form.</strong>
+
+                <ul>
+                    {% for error in errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+        </div>
+
+    {% endif %}
+
+
+    <!-- =====================================================
+         FORM
+    ====================================================== -->
+
+    <form
+        method="POST"
+        class="thesis-editor-form"
+    >
+
+        <!-- =================================================
+             01 — RESEARCH INFORMATION
+        ================================================== -->
+
+        <section class="thesis-editor-card">
+
+            <div class="thesis-editor-section-head">
+
+                <div class="thesis-editor-section-number">
+                    01
+                </div>
+
+                <div class="thesis-editor-section-icon green">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+
+                <div>
+                    <span class="thesis-editor-section-label">
+                        RESEARCH RECORD
+                    </span>
+
+                    <h2>
+                        Research Information
+                    </h2>
+
+                    <p>
+                        Enter the core identifying information for the thesis or capstone project.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="thesis-editor-grid">
+
+                <div class="thesis-editor-field">
+
+                    <label for="thesis_code">
+                        Thesis Code
+                        <span>*</span>
+                    </label>
+
+                    <div class="thesis-editor-input-shell">
+                        <i class="fa-solid fa-barcode"></i>
+
+                        <input
+                            id="thesis_code"
+                            type="text"
+                            name="thesis_code"
+                            maxlength="50"
+                            required
+                            placeholder="e.g. LIBRA-T0961"
+                            value="{{ request.form.get(
+                                'thesis_code',
+                                thesis.thesis_code if thesis else ''
+                            ) }}"
+                        >
+                    </div>
+
+                    <small>
+                        Use the unique library reference code assigned to the research.
+                    </small>
+
+                </div>
+
+
+                <div class="thesis-editor-field">
+
+                    <label for="year_published">
+                        Year Published
+                        <span>*</span>
+                    </label>
+
+                    <div class="thesis-editor-input-shell">
+                        <i class="fa-regular fa-calendar"></i>
+
+                        <input
+                            id="year_published"
+                            type="number"
+                            name="year_published"
+                            min="1900"
+                            max="2100"
+                            required
+                            placeholder="e.g. 2026"
+                            value="{{ request.form.get(
+                                'year_published',
+                                thesis.year_published if thesis else ''
+                            ) }}"
+                        >
+                    </div>
+
+                    <small>
+                        Enter the official publication or completion year.
+                    </small>
+
+                </div>
+
+
+                <div class="thesis-editor-field thesis-editor-full">
+
+                    <label for="title">
+                        Thesis / Capstone Title
+                        <span>*</span>
+                    </label>
+
+                    <div class="thesis-editor-input-shell">
+                        <i class="fa-solid fa-heading"></i>
+
+                        <input
+                            id="title"
+                            type="text"
+                            name="title"
+                            required
+                            placeholder="Enter the complete research title"
+                            value="{{ request.form.get(
+                                'title',
+                                thesis.title if thesis else ''
+                            ) }}"
+                        >
+                    </div>
+
+                </div>
+
+
+                <div class="thesis-editor-field thesis-editor-full">
+
+                    <label for="author_researchers">
+                        Author / Researcher(s)
+                        <span>*</span>
+                    </label>
+
+                    <div class="thesis-editor-textarea-shell compact">
+                        <i class="fa-regular fa-user"></i>
+
+                        <textarea
+                            id="author_researchers"
+                            name="author_researchers"
+                            rows="3"
+                            required
+                            placeholder="Enter researcher names separated by commas"
+                        >{{ request.form.get(
+                            'author_researchers',
+                            thesis.author_researchers if thesis else ''
+                        ) }}</textarea>
+                    </div>
+
+                    <small>
+                        Example: Juan Dela Cruz, Maria Santos, Pedro Reyes
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             02 — ACADEMIC CLASSIFICATION
+        ================================================== -->
+
+        <section class="thesis-editor-card">
+
+            <div class="thesis-editor-section-head">
+
+                <div class="thesis-editor-section-number">
+                    02
+                </div>
+
+                <div class="thesis-editor-section-icon green">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+
+                <div>
+                    <span class="thesis-editor-section-label">
+                        ACADEMIC PROFILE
+                    </span>
+
+                    <h2>
+                        Academic Classification
+                    </h2>
+
+                    <p>
+                        Connect the research to its academic level, department, and degree program.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="thesis-editor-grid thesis-editor-three">
+
+                <div class="thesis-editor-field">
+
+                    <label for="academicLevelSelect">
+                        Academic Level
+                        <span>*</span>
+                    </label>
+
+                    <div class="thesis-editor-select-shell">
+                        <i class="fa-solid fa-layer-group"></i>
+
+                        <select
+                            id="academicLevelSelect"
+                            required
+                        >
+                            <option value="">
+                                Select Academic Level
+                            </option>
+
+                            {% for level in academic_levels %}
+
+                                <option
+                                    value="{{ level.id }}"
+                                    {% if thesis
+                                        and thesis.program
+                                        and thesis.program.academic_level_id == level.id
+                                    %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ level.academic_level }}
+                                </option>
+
+                            {% endfor %}
+                        </select>
+
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="thesis-editor-field">
+
+                    <label for="departmentSelect">
+                        Department / College
+                        <span>*</span>
+                    </label>
+
+                    <div class="thesis-editor-select-shell">
+                        <i class="fa-solid fa-building-columns"></i>
+
+                        <select
+                            id="departmentSelect"
+                            required
+                        >
+                            <option value="">
+                                Select Department
+                            </option>
+
+                            {% for department in departments %}
+
+                                <option
+                                    value="{{ department.id }}"
+                                    {% if thesis
+                                        and thesis.program
+                                        and thesis.program.department_id == department.id
+                                    %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ department.department_college }}
+                                </option>
+
+                            {% endfor %}
+                        </select>
+
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+
+                </div>
+
+
+                <div class="thesis-editor-field">
+
+                    <label for="programSelect">
+                        Program / Course
+                        <span>*</span>
+                    </label>
+
+                    <div class="thesis-editor-select-shell">
+                        <i class="fa-solid fa-user-graduate"></i>
+
+                        <select
+                            id="programSelect"
+                            name="program_id"
+                            required
+                        >
+                            <option value="">
+                                Select Program
+                            </option>
+
+                            {% for program in programs %}
+
+                                <option
+                                    value="{{ program.id }}"
+                                    data-level="{{ program.academic_level_id }}"
+                                    data-department="{{ program.department_id }}"
+
+                                    {% if
+                                        request.form.get('program_id')|string
+                                        == program.id|string
+                                    %}
+                                        selected
+
+                                    {% elif
+                                        not request.form.get('program_id')
+                                        and thesis
+                                        and thesis.program_id == program.id
+                                    %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ program.program_code }} — {{ program.program_name }}
+                                </option>
+
+                            {% endfor %}
+                        </select>
+
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+
+                    <small>
+                        Program options are filtered using the selected academic level and department.
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             03 — RESEARCH CLASSIFICATION
+        ================================================== -->
+
+        <section class="thesis-editor-card">
+
+            <div class="thesis-editor-section-head">
+
+                <div class="thesis-editor-section-number">
+                    03
+                </div>
+
+                <div class="thesis-editor-section-icon gold">
+                    <i class="fa-solid fa-tags"></i>
+                </div>
+
+                <div>
+                    <span class="thesis-editor-section-label">
+                        DISCOVERY METADATA
+                    </span>
+
+                    <h2>
+                        Research Classification
+                    </h2>
+
+                    <p>
+                        Add searchable metadata used by LIBRA for discovery, analytics, and related research.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="thesis-editor-grid">
+
+                <div class="thesis-editor-field">
+
+                    <label for="research_field">
+                        Research Field
+                        <span>*</span>
+                    </label>
+
+                    <div class="thesis-editor-input-shell">
+                        <i class="fa-solid fa-flask"></i>
+
+                        <input
+                            id="research_field"
+                            type="text"
+                            name="research_field"
+                            required
+                            placeholder="e.g. Public Administration"
+                            value="{{ request.form.get(
+                                'research_field',
+                                thesis.research_field if thesis else ''
+                            ) }}"
+                        >
+                    </div>
+
+                </div>
+
+
+                <div class="thesis-editor-field">
+
+                    <label for="research_topic">
+                        Research Topic
+                        <span>*</span>
+                    </label>
+
+                    <div class="thesis-editor-input-shell">
+                        <i class="fa-solid fa-lightbulb"></i>
+
+                        <input
+                            id="research_topic"
+                            type="text"
+                            name="research_topic"
+                            required
+                            placeholder="e.g. Public Sector Management"
+                            value="{{ request.form.get(
+                                'research_topic',
+                                thesis.research_topic if thesis else ''
+                            ) }}"
+                        >
+                    </div>
+
+                </div>
+
+
+                <div class="thesis-editor-field thesis-editor-full">
+
+                    <label for="research_subtopic">
+                        Research Subtopic
+                        <em>Optional</em>
+                    </label>
+
+                    <div class="thesis-editor-input-shell">
+                        <i class="fa-solid fa-diagram-project"></i>
+
+                        <input
+                            id="research_subtopic"
+                            type="text"
+                            name="research_subtopic"
+                            placeholder="e.g. Institutional Capacity"
+                            value="{{ request.form.get(
+                                'research_subtopic',
+                                thesis.research_subtopic
+                                if thesis and thesis.research_subtopic
+                                else ''
+                            ) }}"
+                        >
+                    </div>
+
+                </div>
+
+
+                <div class="thesis-editor-field thesis-editor-full">
+
+                    <label for="keywords">
+                        Keywords
+                        <span>*</span>
+                    </label>
+
+                    <div class="thesis-editor-textarea-shell compact">
+                        <i class="fa-solid fa-key"></i>
+
+                        <textarea
+                            id="keywords"
+                            name="keywords"
+                            rows="3"
+                            required
+                            placeholder="Enter keywords separated by commas"
+                        >{{ request.form.get(
+                            'keywords',
+                            thesis.keywords if thesis else ''
+                        ) }}</textarea>
+                    </div>
+
+                    <small>
+                        Example: public administration, institutional capacity, governance
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             04 — ABSTRACT
+        ================================================== -->
+
+        <section class="thesis-editor-card thesis-editor-abstract-card">
+
+            <div class="thesis-editor-section-head">
+
+                <div class="thesis-editor-section-number">
+                    04
+                </div>
+
+                <div class="thesis-editor-section-icon gold">
+                    <i class="fa-regular fa-file-lines"></i>
+                </div>
+
+                <div>
+                    <span class="thesis-editor-section-label">
+                        RESEARCH SUMMARY
+                    </span>
+
+                    <h2>
+                        Abstract
+                    </h2>
+
+                    <p>
+                        Encode a concise research summary that helps users understand and discover the study.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="thesis-editor-field thesis-editor-full">
+
+                <label for="abstract">
+                    Research Abstract
+                    <span>*</span>
+                </label>
+
+                <div class="thesis-editor-textarea-shell abstract">
+                    <i class="fa-regular fa-file-lines"></i>
+
+                    <textarea
+                        id="abstract"
+                        name="abstract"
+                        rows="10"
+                        required
+                        placeholder="Enter a concise abstract or important details from the thesis..."
+                    >{{ request.form.get(
+                        'abstract',
+                        thesis.abstract if thesis else ''
+                    ) }}</textarea>
+                </div>
+
+                <div class="thesis-editor-helper-box">
+                    <i class="fa-regular fa-circle-question"></i>
+
+                    <span>
+                        A short meaningful summary is acceptable. This content is also used by LIBRA when generating related research recommendations.
+                    </span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             05 — LIBRARY INFORMATION
+        ================================================== -->
+
+        <section class="thesis-editor-card">
+
+            <div class="thesis-editor-section-head">
+
+                <div class="thesis-editor-section-number">
+                    05
+                </div>
+
+                <div class="thesis-editor-section-icon green">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+
+                <div>
+                    <span class="thesis-editor-section-label">
+                        COLLECTION CONTROL
+                    </span>
+
+                    <h2>
+                        Library Information
+                    </h2>
+
+                    <p>
+                        Record the physical shelf location and current availability of the research material.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="thesis-editor-grid">
+
+                <div class="thesis-editor-field">
+
+                    <label for="shelf_location">
+                        Shelf Location
+                        <span>*</span>
+                    </label>
+
+                    <div class="thesis-editor-input-shell">
+                        <i class="fa-solid fa-location-dot"></i>
+
+                        <input
+                            id="shelf_location"
+                            type="text"
+                            name="shelf_location"
+                            required
+                            placeholder="e.g. Shelf G-70"
+                            value="{{ request.form.get(
+                                'shelf_location',
+                                thesis.shelf_location if thesis else ''
+                            ) }}"
+                        >
+                    </div>
+
+                    <small>
+                        Specify the physical location that librarians can easily identify.
+                    </small>
+
+                </div>
+
+
+                <div class="thesis-editor-field">
+
+                    <label for="availability">
+                        Availability
+                        <span>*</span>
+                    </label>
+
+                    {% set current_availability = request.form.get(
+                        'availability',
+                        thesis.availability if thesis else 'Available'
+                    ) %}
+
+                    <div class="thesis-editor-select-shell">
+                        <i class="fa-solid fa-circle-check"></i>
+
+                        <select
+                            id="availability"
+                            name="availability"
+                            required
+                        >
+                            <option
+                                value="Available"
+                                {% if current_availability == "Available" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Available
+                            </option>
+
+                            <option
+                                value="Borrowed"
+                                {% if current_availability == "Borrowed" %}
+                                    selected
+                                {% endif %}
+                            >
+                                Borrowed
+                            </option>
+                        </select>
+
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+
+                    <small>
+                        This status is shown to users when they view research availability.
+                    </small>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =================================================
+             FORM ACTIONS
+        ================================================== -->
+
+        <div class="thesis-editor-actions">
+
+            <div class="thesis-editor-actions-note">
+                <i class="fa-solid fa-circle-info"></i>
+
+                <span>
+                    Review the record before saving changes to the LIBRA repository.
+                </span>
+            </div>
+
+
+            <div class="thesis-editor-actions-buttons">
+
+                <a
+                    href="{{ url_for('admin.thesis_management') }}"
+                    class="thesis-editor-cancel"
+                >
+                    Cancel
+                </a>
+
+                <button
+                    type="submit"
+                    class="thesis-editor-submit"
+                >
+                    <i class="fa-solid fa-floppy-disk"></i>
+
+                    {% if mode == "edit" %}
+                        Save Changes
+                    {% else %}
+                        Add Thesis
+                    {% endif %}
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- =========================================================
+     DEPENDENT ACADEMIC DROPDOWNS
+========================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const levelSelect =
+            document.getElementById(
+                "academicLevelSelect"
+            );
+
+        const departmentSelect =
+            document.getElementById(
+                "departmentSelect"
+            );
+
+        const programSelect =
+            document.getElementById(
+                "programSelect"
+            );
+
+
+        if (
+            !levelSelect ||
+            !departmentSelect ||
+            !programSelect
+        ) {
+            return;
+        }
+
+
+        const originalPrograms =
+            Array.from(
+                programSelect.options
+            ).map(
+                function (option) {
+                    return option.cloneNode(true);
+                }
+            );
+
+
+        function filterPrograms() {
+
+            const selectedLevel =
+                levelSelect.value;
+
+            const selectedDepartment =
+                departmentSelect.value;
+
+            const previousProgram =
+                programSelect.value;
+
+
+            programSelect.innerHTML = "";
+
+
+            originalPrograms.forEach(
+                function (originalOption) {
+
+                    const option =
+                        originalOption.cloneNode(true);
+
+
+                    if (!option.value) {
+
+                        programSelect.appendChild(
+                            option
+                        );
+
+                        return;
+                    }
+
+
+                    const optionLevel =
+                        option.dataset.level;
+
+                    const optionDepartment =
+                        option.dataset.department;
+
+
+                    const levelMatches =
+                        !selectedLevel ||
+                        optionLevel === selectedLevel;
+
+                    const departmentMatches =
+                        !selectedDepartment ||
+                        optionDepartment === selectedDepartment;
+
+
+                    if (
+                        levelMatches &&
+                        departmentMatches
+                    ) {
+
+                        programSelect.appendChild(
+                            option
+                        );
+                    }
+
+                }
+            );
+
+
+            const matchingOption =
+                Array.from(
+                    programSelect.options
+                ).find(
+                    function (option) {
+                        return (
+                            option.value ===
+                            previousProgram
+                        );
+                    }
+                );
+
+
+            if (matchingOption) {
+
+                programSelect.value =
+                    previousProgram;
+            }
+
+        }
+
+
+        levelSelect.addEventListener(
+            "change",
+            filterPrograms
+        );
+
+
+        departmentSelect.addEventListener(
+            "change",
+            filterPrograms
+        );
+
+
+        filterPrograms();
+
+    }
+);
+
+</script>
+
+{% endblock %}

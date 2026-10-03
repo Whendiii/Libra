@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Borrowing Slip | {{ borrowing_request.request_id }}
+    </title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            background: #f2f4f3;
+            font-family: Arial, sans-serif;
+            color: #1f3f2d;
+        }
+
+        .slip-actions {
+            width: 210mm;
+            max-width: 100%;
+            margin: 0 auto 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .slip-actions button,
+        .slip-actions a {
+            padding: 10px 16px;
+            border-radius: 7px;
+            border: none;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .print-btn {
+            background: #178a4a;
+            color: white;
+        }
+
+        .back-btn {
+            background: white;
+            color: #276341;
+            border: 1px solid #b9d9c5 !important;
+        }
+
+        .borrowing-slip {
+            width: 210mm;
+            min-height: 297mm;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 18mm 17mm;
+            background: white;
+            box-shadow: 0 3px 18px rgba(0,0,0,.08);
+        }
+
+        .slip-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid #145f36;
+        }
+
+        .seal {
+            width: 74px;
+            height: 74px;
+            object-fit: contain;
+        }
+
+        .header-copy {
+            text-align: center;
+        }
+
+        .header-copy h1 {
+            margin: 0;
+            color: #145f36;
+            font-size: 19px;
+        }
+
+        .header-copy p {
+            margin: 4px 0;
+            font-size: 12px;
+        }
+
+        .document-title {
+            margin: 24px 0 6px;
+            text-align: center;
+            color: #145f36;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .document-subtitle {
+            margin: 0 0 25px;
+            text-align: center;
+            color: #718479;
+            font-size: 12px;
+        }
+
+        .slip-reference {
+            margin-bottom: 22px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            font-size: 12px;
+        }
+
+        .slip-reference strong {
+            color: #145f36;
+        }
+
+        .slip-section {
+            margin-top: 22px;
+        }
+
+        .slip-section-title {
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #cfe0d5;
+            color: #145f36;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 25px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .info-item.full {
+            grid-column: 1 / -1;
+        }
+
+        .info-item span {
+            color: #778a7f;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .info-item strong {
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .status-box {
+            margin-top: 22px;
+            padding: 12px 15px;
+            border: 1px solid #d5e7dc;
+            background: #f5faf7;
+            border-radius: 8px;
+            font-size: 12px;
+        }
+
+        .status-box strong {
+            color: #145f36;
+        }
+
+        .signature-area {
+            margin-top: 55px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+        }
+
+        .signature-box {
+            text-align: center;
+            font-size: 11px;
+        }
+
+        .signature-line {
+            height: 35px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #333;
+        }
+
+        .slip-footer {
+            margin-top: 45px;
+            padding-top: 12px;
+            border-top: 1px solid #dce7df;
+            color: #89978e;
+            text-align: center;
+            font-size: 9px;
+            line-height: 1.5;
+        }
+
+        @media print {
+
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+
+            body {
+                padding: 0;
+                background: white;
+            }
+
+            .slip-actions {
+                display: none;
+            }
+
+            .borrowing-slip {
+                width: 210mm;
+                min-height: 297mm;
+                margin: 0;
+                box-shadow: none;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     ACTIONS
+========================================================= -->
+
+<div class="slip-actions">
+
+    <a
+        href="{{ url_for(
+            'admin.borrowing_request_details',
+            request_id=borrowing_request.id
+        ) }}"
+        class="back-btn"
+    >
+        Back
+    </a>
+
+    <button
+        type="button"
+        class="print-btn"
+        onclick="window.print()"
+    >
+        Print / Save as PDF
+    </button>
+
+</div>
+
+
+
+<!-- =========================================================
+     BORROWING SLIP
+========================================================= -->
+
+<section class="borrowing-slip">
+
+
+    <!-- HEADER -->
+
+    <div class="slip-header">
+
+        <img
+            src="{{ url_for(
+                'static',
+                filename='img/isu_logo.png'
+            ) }}"
+            alt="ISU Logo"
+            class="seal"
+        >
+
+        <div class="header-copy">
+
+            <h1>
+                ISABELA STATE UNIVERSITY
+            </h1>
+
+            <p>
+                Echague Campus Library
+            </p>
+
+            <p>
+                Echague, Isabela
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="document-title">
+        LIBRA Borrowing Slip
+    </div>
+
+    <p class="document-subtitle">
+        Library Integrated Borrowing, Research & Analytics
+    </p>
+
+
+
+    <!-- REFERENCE -->
+
+    <div class="slip-reference">
+
+        <div>
+            Request No.:
+            <strong>
+                {{ borrowing_request.request_id }}
+            </strong>
+        </div>
+
+        <div>
+            Status:
+            <strong>
+                {{ borrowing_request.status }}
+            </strong>
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         BORROWER INFORMATION
+    ====================================================== -->
+
+    <div class="slip-section">
+
+        <div class="slip-section-title">
+            Borrower Information
+        </div>
+
+        <div class="info-grid">
+
+
+            <div class="info-item">
+
+                <span>
+                    Full Name
+                </span>
+
+                <strong>
+                    {{ borrowing_request.full_name }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span>
+                    User Type
+                </span>
+
+                <strong>
+                    {{ borrowing_request.user_type }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span>
+                    Gender
+                </span>
+
+                <strong>
+                    {{ borrowing_request.gender }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span>
+                    Age
+                </span>
+
+                <strong>
+                    {{ borrowing_request.age }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span>
+                    Year Level
+                </span>
+
+                <strong>
+                    {{ borrowing_request.year_level or "N/A" }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-item full">
+
+                <span>
+                    Address
+                </span>
+
+                <strong>
+                    {{ borrowing_request.address }}
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         REQUESTED THESIS
+    ====================================================== -->
+
+    <div class="slip-section">
+
+        <div class="slip-section-title">
+            Requested Research Material
+        </div>
+
+        <div class="info-grid">
+
+
+            <div class="info-item full">
+
+                <span>
+                    Thesis Title
+                </span>
+
+                <strong>
+                    {{ borrowing_request.thesis.title }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span>
+                    Thesis Code
+                </span>
+
+                <strong>
+                    {{ borrowing_request.thesis.thesis_code }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span>
+                    Year Published
+                </span>
+
+                <strong>
+                    {{ borrowing_request.thesis.year_published }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-item full">
+
+                <span>
+                    Author / Researchers
+                </span>
+
+                <strong>
+                    {{ borrowing_request.thesis.author_researchers }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-item full">
+
+                <span>
+                    Program
+                </span>
+
+                <strong>
+                    {{ borrowing_request.thesis.program.program_name }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span>
+                    Shelf Location
+                </span>
+
+                <strong>
+                    {{ borrowing_request.thesis.shelf_location }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span>
+                    Availability
+                </span>
+
+                <strong>
+                    {{ borrowing_request.thesis.availability }}
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         BORROWING DETAILS
+    ====================================================== -->
+
+    <div class="slip-section">
+
+        <div class="slip-section-title">
+            Borrowing Details
+        </div>
+
+        <div class="info-grid">
+
+
+            <div class="info-item">
+
+                <span>
+                    Requested Borrowing Time
+                </span>
+
+                <strong>
+                    {{
+                        borrowing_request.requested_borrowing_time.strftime(
+                            '%B %d, %Y · %I:%M %p'
+                        )
+                    }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span>
+                    Duration
+                </span>
+
+                <strong>
+                    {{ borrowing_request.duration_hours }}
+                    hour(s)
+                </strong>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span>
+                    Expected Return Time
+                </span>
+
+                <strong>
+                    {{
+                        borrowing_request.expected_return_time.strftime(
+                            '%B %d, %Y · %I:%M %p'
+                        )
+                    }}
+                </strong>
+
+            </div>
+
+
+            <div class="info-item">
+
+                <span>
+                    Borrowing Location
+                </span>
+
+                <strong>
+                    {{ borrowing_request.borrowing_location }}
+                </strong>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         NOTE
+    ====================================================== -->
+
+    <div class="status-box">
+
+        <strong>
+            Note:
+        </strong>
+
+        This slip documents the borrowing request.
+        A submitted request does not automatically mean that
+        the research material has already been borrowed.
+        The library administrator records the actual borrowing
+        transaction when the physical material is released.
+
+    </div>
+
+
+
+    <!-- =====================================================
+         SIGNATURES
+    ====================================================== -->
+
+    <div class="signature-area">
+
+
+        <div class="signature-box">
+
+            <div class="signature-line"></div>
+
+            Borrower's Signature
+
+        </div>
+
+
+        <div class="signature-box">
+
+            <div class="signature-line"></div>
+
+            Library Administrator
+
+        </div>
+
+
+    </div>
+
+
+
+    <!-- FOOTER -->
+
+    <div class="slip-footer">
+
+        Generated through LIBRA —
+        Library Integrated Borrowing, Research & Analytics
+        <br>
+        Isabela State University – Echague Campus Library
+
+    </div>
+
+
+</section>
+
+
+</body>
+
+</html>

@@ -1,0 +1,424 @@
+{% extends "base.html" %}
+
+{% block title %}
+LIBRA | Research Discovery
+{% endblock %}
+
+{% block content %}
+
+<!-- =========================================================
+     HOME HERO
+========================================================= -->
+
+<section class="home-hero">
+
+    <div class="hero-content">
+
+        <div class="hero-campus-badge">
+
+            <div class="hero-campus-logo">
+                <img
+                    src="{{ url_for('static', filename='img/isu_logo.png') }}"
+                    alt="Isabela State University Logo"
+                >
+            </div>
+
+            <span>
+                Isabela State University – Echague Campus Library
+            </span>
+
+        </div>
+
+        <div class="hero-kicker">
+            LIBRARY INTEGRATED BORROWING, RESEARCH & ANALYTICS
+        </div>
+
+        <h1 class="home-hero-title">
+            Discover Previous Research
+            <span>at ISU–Echague</span>
+        </h1>
+
+        <p class="hero-description">
+            Search and explore thesis, capstone, and academic research
+            from the university collection using titles, authors,
+            programs, research fields, topics, and keywords.
+        </p>
+
+        <form
+            action="{{ url_for('main.search_submit') }}"
+            method="GET"
+            class="hero-search"
+        >
+
+            <div class="hero-search-input">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input
+                    id="homeSearchInput"
+                    type="text"
+                    name="q"
+                    autocomplete="off"
+                    aria-label="Search research collection"
+                    placeholder="Search thesis title, author, course, research field, topic, or keyword..."
+                >
+
+            </div>
+
+            <button
+                type="submit"
+                class="hero-search-button"
+            >
+                <span>Search</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+            <div
+                id="homeSearchSuggestions"
+                class="search-suggestions home-search-suggestions"
+            ></div>
+
+        </form>
+
+        <p class="hero-search-help">
+            <i class="fa-solid fa-circle-info"></i>
+            Start typing to see suggested research from the LIBRA collection.
+        </p>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     HOME CONTENT
+========================================================= -->
+
+<section class="home-content">
+
+    <!-- POPULAR SEARCHES -->
+
+    <div class="popular-row">
+
+        <div class="popular-heading">
+
+            <div class="popular-heading-icon">
+                <i class="fa-regular fa-star"></i>
+            </div>
+
+            <span class="popular-label">
+                Popular Searches
+            </span>
+
+        </div>
+
+        <div class="popular-tags">
+
+            {% for term in popular_terms %}
+
+                <a
+                    href="{{ url_for('main.search', q=term.normalized_query) }}"
+                    class="popular-chip"
+                >
+                    <i class="fa-solid fa-arrow-trend-up"></i>
+                    {{ term.normalized_query|title }}
+                </a>
+
+            {% else %}
+
+                <a
+                    href="{{ url_for('main.search', q='machine learning') }}"
+                    class="popular-chip"
+                >
+                    <i class="fa-solid fa-arrow-trend-up"></i>
+                    Machine Learning
+                </a>
+
+                <a
+                    href="{{ url_for('main.search', q='agriculture') }}"
+                    class="popular-chip"
+                >
+                    <i class="fa-solid fa-arrow-trend-up"></i>
+                    Agriculture
+                </a>
+
+                <a
+                    href="{{ url_for('main.search', q='iot') }}"
+                    class="popular-chip"
+                >
+                    <i class="fa-solid fa-arrow-trend-up"></i>
+                    IoT
+                </a>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         MOST SEARCHED TOPICS
+    ====================================================== -->
+
+    <section class="home-section">
+
+        <div class="home-section-heading">
+
+            <div class="section-heading-copy">
+
+                <div class="section-heading-icon">
+                    <i class="fa-solid fa-chart-simple"></i>
+                </div>
+
+                <div>
+
+                    <span class="home-section-eyebrow research-eyebrow">
+                        <i class="fa-solid fa-compass"></i>
+                        RESEARCH DISCOVERY
+                    </span>
+
+                    <h2 class="section-title">
+                        Most Searched Research Topics
+                    </h2>
+
+                    <p>
+                        Explore the research areas attracting the most
+                        interest across the LIBRA collection.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <a
+                href="{{ url_for('main.search') }}"
+                class="section-view-link"
+            >
+                View All Topics
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
+        </div>
+
+        <div class="topic-ranking-grid">
+
+            {% for topic in most_searched_topics %}
+
+                <a
+                    href="{{ url_for('main.search', q=topic.topic_bucket) }}"
+                    class="topic-rank-card"
+                >
+
+                    <div class="topic-rank-top">
+
+                        <span class="rank-number">
+                            #{{ loop.index }}
+                        </span>
+
+                        <span class="topic-rank-icon">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                        </span>
+
+                    </div>
+
+                    <strong class="topic-rank-title">
+                        {{ topic.topic_bucket }}
+                    </strong>
+
+                    <span class="search-count">
+                        {{ topic.search_count }}
+                        search{% if topic.search_count != 1 %}es{% endif %}
+                    </span>
+
+                </a>
+
+            {% else %}
+
+                <div class="topic-rank-card">
+
+                    <div class="topic-rank-top">
+                        <span class="rank-number">#1</span>
+                    </div>
+
+                    <strong class="topic-rank-title">
+                        Machine Learning
+                    </strong>
+
+                    <span class="search-count">
+                        No search data yet
+                    </span>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FEATURED RESEARCH
+    ====================================================== -->
+
+    <section class="home-section featured-home-section">
+
+        <div class="section-heading-row">
+
+            <div class="section-heading-copy">
+
+                <div class="section-heading-icon book">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+
+                <div>
+
+                    <span class="home-section-eyebrow library-eyebrow">
+                        <i class="fa-solid fa-layer-group"></i>
+                        LIBRARY COLLECTION
+                    </span>
+
+                    <h2 class="featured-title">
+                        Featured Research
+                    </h2>
+
+                    <p>
+                        Recently available thesis and capstone projects
+                        from the university collection.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <a
+                href="{{ url_for('main.search') }}"
+                class="browse-button"
+            >
+                Browse All Research
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
+        </div>
+
+        <div class="featured-grid">
+
+            {% for thesis in featured_research %}
+
+                <article class="research-card">
+
+                    <div class="research-card-top">
+
+                        <span class="year-badge">
+                            <i class="fa-regular fa-calendar"></i>
+                            {{ thesis.year_published }}
+                        </span>
+
+                        <span
+                            class="
+                                status-badge
+                                {% if thesis.availability == 'Borrowed' %}
+                                    borrowed
+                                {% else %}
+                                    available
+                                {% endif %}
+                            "
+                        >
+                            <i class="fa-solid fa-circle"></i>
+                            {{ thesis.availability }}
+                        </span>
+
+                    </div>
+
+                    <h3 class="research-card-title">
+                        {{ thesis.title }}
+                    </h3>
+
+                    <div class="research-meta">
+
+                        <div>
+                            <i class="fa-regular fa-user"></i>
+                            <span>{{ thesis.author_researchers }}</span>
+                        </div>
+
+                        <div class="program-name">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            <span>{{ thesis.program.program_name }}</span>
+                        </div>
+
+                    </div>
+
+                    <div class="keyword-row">
+
+                        {% if thesis.research_field %}
+                            <span class="keyword-chip">
+                                {{ thesis.research_field }}
+                            </span>
+                        {% endif %}
+
+                        {% if thesis.research_topic %}
+                            <span class="keyword-chip">
+                                {{ thesis.research_topic }}
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="research-card-bottom">
+
+                        <div class="shelf-location">
+                            <i class="fa-solid fa-location-dot"></i>
+                            <span>{{ thesis.shelf_location }}</span>
+                        </div>
+
+                        <a
+                            href="{{ url_for(
+                                'main.thesis_details',
+                                thesis_id=thesis.id
+                            ) }}"
+                            class="view-details-button"
+                        >
+                            View Details
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+
+                    </div>
+
+                </article>
+
+            {% else %}
+
+                <div class="empty-home-message">
+
+                    <i class="fa-regular fa-folder-open"></i>
+
+                    <strong>
+                        No research records available.
+                    </strong>
+
+                    <span>
+                        Featured research will appear here once
+                        records are available.
+                    </span>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script
+    src="{{ url_for('static', filename='js/search.js') }}"
+></script>
+
+{% endblock %}

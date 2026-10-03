@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+        LIBRA | ISU Echague Campus Library
+        {% endblock %}
+    </title>
+
+
+    <!-- =====================================================
+         GOOGLE FONT
+    ====================================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         FONT AWESOME
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+
+    <!-- =====================================================
+         LIBRA CSS
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+
+    {% block head %}
+    {% endblock %}
+
+</head>
+
+
+<body>
+
+
+<!-- =========================================================
+     PUBLIC HEADER
+========================================================= -->
+
+<header class="public-header">
+
+    <div class="header-inner">
+
+
+        <!-- =================================================
+             LEFT BRAND AREA
+        ================================================== -->
+
+        <div class="header-brand-area">
+
+
+            <!-- =============================================
+                 LIBRA BRAND
+            ============================================== -->
+
+            <a
+                href="{{ url_for('main.home') }}"
+                class="libra-brand"
+                aria-label="LIBRA Home"
+            >
+
+                <div class="libra-logo-box">
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='img/libra_logo.png'
+                        ) }}"
+                        alt="LIBRA Logo"
+                        class="libra-logo-img"
+                    >
+
+                </div>
+
+
+                <div class="libra-brand-copy">
+
+                    <strong>
+                        LIBRA
+                    </strong>
+
+                    <span>
+                        Library Integrated Borrowing,
+                        <br>
+                        Research & Analytics
+                    </span>
+
+                </div>
+
+            </a>
+
+
+
+            <!-- =============================================
+                 DIVIDER
+            ============================================== -->
+
+            <div class="brand-divider"></div>
+
+
+
+            <!-- =============================================
+                 ISU BRAND
+            ============================================== -->
+
+            <div class="isu-brand">
+
+                <div class="isu-logo-box">
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='img/isu_logo.png'
+                        ) }}"
+                        alt="Isabela State University Logo"
+                        class="isu-logo-img"
+                    >
+
+                </div>
+
+
+                <div class="isu-brand-copy">
+
+                    <strong>
+                        Isabela State University
+                    </strong>
+
+                    <span>
+                        Echague Campus Library
+                    </span>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             PUBLIC NAVIGATION
+        ================================================== -->
+
+        <nav
+            class="public-nav"
+            aria-label="Main Navigation"
+        >
+
+
+            <!-- HOME -->
+
+            <a
+                href="{{ url_for('main.home') }}"
+                class="
+                    nav-link
+
+                    {% if request.endpoint == 'main.home' %}
+                        active
+                    {% endif %}
+                "
+            >
+                Home
+            </a>
+
+
+
+            <!-- SEARCH -->
+
+            <a
+                href="{{ url_for('main.search') }}"
+                class="
+                    nav-link
+
+                    {% if request.endpoint in [
+                        'main.search',
+                        'main.thesis_details',
+                        'main.borrow_request'
+                    ] %}
+                        active
+                    {% endif %}
+                "
+            >
+                Search
+            </a>
+
+
+
+            <!-- ABOUT -->
+
+            <a
+                href="{{ url_for('main.about') }}"
+                class="
+                    nav-link
+
+                    {% if request.endpoint == 'main.about' %}
+                        active
+                    {% endif %}
+                "
+            >
+                About
+            </a>
+
+
+
+            <!-- ADMIN LOGIN -->
+
+            <a
+                href="{{ url_for('admin.login') }}"
+                class="admin-login-button"
+            >
+
+                <i class="fa-solid fa-user-shield"></i>
+
+                <span>
+                    Admin Login
+                </span>
+
+            </a>
+
+
+        </nav>
+
+
+    </div>
+
+</header>
+
+
+
+<!-- =========================================================
+     MAIN PAGE CONTENT
+========================================================= -->
+
+<main class="public-main">
+
+    {% block content %}
+    {% endblock %}
+
+</main>
+
+
+
+<!-- =========================================================
+     PUBLIC FOOTER
+========================================================= -->
+
+<footer class="public-footer">
+
+    <div class="footer-inner">
+
+
+        <!-- =================================================
+             FOOTER LEFT
+        ================================================== -->
+
+        <div class="footer-brand-section">
+
+
+            <div class="footer-logo">
+
+
+                <div class="footer-libra-logo-box">
+
+                    <img
+                        src="{{ url_for(
+                            'static',
+                            filename='img/libra_logo.png'
+                        ) }}"
+                        alt="LIBRA Logo"
+                        class="footer-libra-logo"
+                    >
+
+                </div>
+
+
+                <div class="footer-libra-copy">
+
+                    <strong>
+                        LIBRA
+                    </strong>
+
+                    <span>
+                        Library Integrated Borrowing,
+                        Research & Analytics
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+
+            <p class="footer-campus">
+
+                <i class="fa-solid fa-location-dot"></i>
+
+                <span>
+                    Isabela State University – Echague Campus Library
+                </span>
+
+            </p>
+
+
+        </div>
+
+
+
+        <!-- =================================================
+             FOOTER CENTER
+        ================================================== -->
+
+        <div class="footer-center">
+
+            <div class="footer-discover-label">
+                Discover • Search • Borrow • Learn
+            </div>
+
+            <p>
+                Explore previous academic research and
+                library resources through LIBRA.
+            </p>
+
+        </div>
+
+
+
+        <!-- =================================================
+             FOOTER RIGHT
+        ================================================== -->
+
+        <div class="footer-right">
+
+
+            <div class="footer-isu-mark">
+
+
+                <img
+                    src="{{ url_for(
+                        'static',
+                        filename='img/isu_logo.png'
+                    ) }}"
+                    alt="ISU Logo"
+                    class="footer-isu-logo"
+                >
+
+
+                <div>
+
+                    <strong>
+                        Isabela State University
+                    </strong>
+
+                    <span>
+                        Echague Campus
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+            <p>
+                © 2026 ISU–Echague Campus Library
+            </p>
+
+
+            <p>
+                LIBRA Research Discovery & Library System
+            </p>
+
+
+        </div>
+
+
+    </div>
+
+</footer>
+
+
+
+<!-- =========================================================
+     PAGE SCRIPTS
+========================================================= -->
+
+{% block scripts %}
+{% endblock %}
+
+
+</body>
+
+</html>

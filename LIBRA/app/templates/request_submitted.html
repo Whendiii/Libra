@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Request Submitted | LIBRA
+{% endblock %}
+
+
+{% block content %}
+
+<section class="request-success-page">
+
+    <div class="request-success-card">
+
+
+        <div class="success-icon">
+
+            <i class="fa-solid fa-check"></i>
+
+        </div>
+
+
+        <span class="success-eyebrow">
+            REQUEST SUBMITTED
+        </span>
+
+
+        <h1>
+            Your borrowing request
+            has been submitted.
+        </h1>
+
+
+        <p class="success-description">
+
+            Your request is now visible to the
+            library administrator.
+            Please keep your request number for reference.
+
+        </p>
+
+
+        <div class="request-code-box">
+
+            <span>
+                Request Number
+            </span>
+
+            <strong>
+                {{ borrowing_request.request_id }}
+            </strong>
+
+        </div>
+
+
+        <div class="success-thesis-box">
+
+            <span>
+                Requested Research
+            </span>
+
+            <strong>
+                {{ borrowing_request.thesis.title }}
+            </strong>
+
+        </div>
+
+
+        <div class="success-status-row">
+
+            <span>
+                Current Request Status
+            </span>
+
+            <strong>
+                Requested
+            </strong>
+
+        </div>
+
+
+        <div class="success-info-note">
+
+            <i class="fa-solid fa-circle-info"></i>
+
+            <p>
+                The thesis has not yet been marked as borrowed.
+                The administrator will handle the actual
+                borrowing transaction after viewing your request.
+            </p>
+
+        </div>
+
+
+        <div class="success-actions">
+
+
+            <a
+                href="{{ url_for('main.home') }}"
+                class="success-home-button"
+            >
+                Back to Home
+            </a>
+
+
+            <a
+                href="{{ url_for(
+                    'main.thesis_details',
+                    thesis_id=borrowing_request.thesis.id
+                ) }}"
+                class="success-details-button"
+            >
+                View Thesis
+            </a>
+
+
+        </div>
+
+
+    </div>
+
+</section>
+
+{% endblock %}

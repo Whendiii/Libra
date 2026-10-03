@@ -1,0 +1,797 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}
+Dashboard | LIBRA Admin
+{% endblock %}
+
+{% block content %}
+
+<div class="admin-dashboard-page">
+
+    <!-- =====================================================
+         PAGE HEADING
+    ====================================================== -->
+
+    <div class="admin-page-heading admin-dashboard-heading">
+
+        <div>
+
+            <span class="admin-page-eyebrow">
+                ADMIN OVERVIEW
+            </span>
+
+            <h1>
+                Library Dashboard
+            </h1>
+
+            <p>
+                Live overview of thesis records, borrowing activity,
+                and research usage across LIBRA.
+            </p>
+
+        </div>
+
+        <div class="dashboard-live-badge">
+
+            <span class="dashboard-live-dot"></span>
+
+            Live database
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         KPI CARDS
+    ====================================================== -->
+
+    <div class="admin-stat-grid dashboard-kpi-grid">
+
+
+        <!-- TOTAL THESIS -->
+
+        <article class="admin-stat-card dashboard-kpi-card">
+
+            <div class="admin-stat-icon green">
+                <i class="fa-solid fa-book"></i>
+            </div>
+
+            <div class="dashboard-kpi-content">
+
+                <span>
+                    Total Thesis
+                </span>
+
+                <strong>
+                    {{ total_theses }}
+                </strong>
+
+                <small>
+                    <b>{{ available_theses }}</b>
+                    available
+                </small>
+
+            </div>
+
+        </article>
+
+
+        <!-- TOTAL REQUESTS -->
+
+        <article class="admin-stat-card dashboard-kpi-card">
+
+            <div class="admin-stat-icon yellow">
+                <i class="fa-regular fa-file-lines"></i>
+            </div>
+
+            <div class="dashboard-kpi-content">
+
+                <span>
+                    Total Requests
+                </span>
+
+                <strong>
+                    {{ total_requests }}
+                </strong>
+
+                <small>
+                    <b>{{ requested_count }}</b>
+                    awaiting action
+                </small>
+
+            </div>
+
+        </article>
+
+
+        <!-- ACTIVE BORROWINGS -->
+
+        <article class="admin-stat-card dashboard-kpi-card">
+
+            <div class="admin-stat-icon blue">
+                <i class="fa-solid fa-book-open-reader"></i>
+            </div>
+
+            <div class="dashboard-kpi-content">
+
+                <span>
+                    Active Borrowings
+                </span>
+
+                <strong>
+                    {{ active_borrowings }}
+                </strong>
+
+                <small>
+                    <b>{{ borrowed_theses }}</b>
+                    thesis currently unavailable
+                </small>
+
+            </div>
+
+        </article>
+
+
+        <!-- TOTAL SEARCHES -->
+
+        <article class="admin-stat-card dashboard-kpi-card">
+
+            <div class="admin-stat-icon purple">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+
+            <div class="dashboard-kpi-content">
+
+                <span>
+                    Total Searches
+                </span>
+
+                <strong>
+                    {{ total_searches }}
+                </strong>
+
+                <small>
+                    Recorded research searches
+                </small>
+
+            </div>
+
+        </article>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         DASHBOARD HIGHLIGHTS
+    ====================================================== -->
+
+    <div class="admin-highlight-grid dashboard-highlight-grid">
+
+
+        <!-- =================================================
+             TOP BORROWED THESIS
+        ================================================== -->
+
+        <article class="admin-highlight-card dashboard-highlight-card">
+
+            <div class="highlight-icon">
+
+                <i class="fa-solid fa-ranking-star"></i>
+
+            </div>
+
+
+            <div class="dashboard-highlight-content">
+
+                <span class="dashboard-highlight-label">
+
+                    Top Borrowed Thesis
+
+                </span>
+
+
+                {% if most_borrowed_theses %}
+
+
+                    <div class="dashboard-ranking-list">
+
+
+                        {% for item in most_borrowed_theses[:3] %}
+
+
+                            <div class="dashboard-ranking-item">
+
+
+                                <div class="dashboard-ranking-number">
+
+                                    {{ loop.index }}
+
+                                </div>
+
+
+                                <div class="dashboard-ranking-copy">
+
+                                    <strong>
+
+                                        {{ item.title }}
+
+                                    </strong>
+
+                                    <small>
+
+                                        {{ item.borrow_count }}
+
+                                        {% if item.borrow_count == 1 %}
+
+                                            borrowing
+
+                                        {% else %}
+
+                                            borrowings
+
+                                        {% endif %}
+
+                                    </small>
+
+                                </div>
+
+
+                            </div>
+
+
+                        {% endfor %}
+
+
+                    </div>
+
+
+                {% else %}
+
+
+                    <div class="dashboard-highlight-empty">
+
+                        <strong>
+                            No borrowing activity yet
+                        </strong>
+
+                        <small>
+                            Rankings will appear once borrowing
+                            transactions are recorded.
+                        </small>
+
+                    </div>
+
+
+                {% endif %}
+
+
+            </div>
+
+
+        </article>
+
+
+        <!-- =================================================
+             RETURNED TRANSACTIONS
+        ================================================== -->
+
+        <article class="admin-highlight-card dashboard-highlight-card">
+
+            <div class="highlight-icon">
+
+                <i class="fa-solid fa-arrow-rotate-left"></i>
+
+            </div>
+
+
+            <div class="dashboard-highlight-content">
+
+                <span class="dashboard-highlight-label">
+
+                    Returned Transactions
+
+                </span>
+
+
+                <strong class="dashboard-highlight-number">
+
+                    {{ total_returned }}
+
+                </strong>
+
+
+                <small class="dashboard-highlight-description">
+
+                    Completed borrowing activities
+
+                </small>
+
+
+            </div>
+
+
+        </article>
+
+
+        <!-- =================================================
+             PENDING REQUESTS
+        ================================================== -->
+
+        <article class="admin-highlight-card dashboard-highlight-card">
+
+            <div class="highlight-icon">
+
+                <i class="fa-regular fa-clock"></i>
+
+            </div>
+
+
+            <div class="dashboard-highlight-content">
+
+                <span class="dashboard-highlight-label">
+
+                    Pending Requests
+
+                </span>
+
+
+                <strong class="dashboard-highlight-number">
+
+                    {{ requested_count }}
+
+                </strong>
+
+
+                <small class="dashboard-highlight-description">
+
+                    Borrowing requests waiting for librarian action
+
+                </small>
+
+
+            </div>
+
+
+        </article>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         LOWER DASHBOARD
+    ====================================================== -->
+
+    <div class="dashboard-lower-grid">
+
+
+        <!-- =================================================
+             RECENT BORROWING REQUESTS
+        ================================================== -->
+
+        <section class="admin-dashboard-section dashboard-recent-section">
+
+
+            <div class="admin-section-heading dashboard-section-heading">
+
+
+                <div>
+
+                    <span class="dashboard-section-kicker">
+
+                        BORROWING ACTIVITY
+
+                    </span>
+
+                    <h2>
+
+                        Recent Borrowing Requests
+
+                    </h2>
+
+                    <p>
+
+                        Latest borrowing activity recorded through LIBRA.
+
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for('admin.borrowing_requests') }}"
+                    class="dashboard-section-link"
+                >
+
+                    View all
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+
+
+            </div>
+
+
+            <div class="admin-table-card dashboard-table-card">
+
+
+                <div class="admin-table-wrap">
+
+
+                    <table class="admin-data-table dashboard-table">
+
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Request
+                                </th>
+
+                                <th>
+                                    Borrower
+                                </th>
+
+                                <th>
+                                    Research Material
+                                </th>
+
+                                <th>
+                                    Requested
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th class="dashboard-action-heading">
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+
+                            {% for item in recent_requests %}
+
+
+                                <tr class="dashboard-request-row">
+
+
+                                    <!-- REQUEST -->
+
+                                    <td>
+
+                                        <div class="dashboard-request-id">
+
+                                            <i class="fa-regular fa-file-lines"></i>
+
+                                            <span>
+
+                                                {{ item.request_id }}
+
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- BORROWER -->
+
+                                    <td>
+
+                                        <div class="dashboard-borrower">
+
+
+                                            <div class="dashboard-borrower-avatar">
+
+
+                                                {% if item.user_type == "Faculty" %}
+
+                                                    <i class="fa-solid fa-user-tie"></i>
+
+                                                {% else %}
+
+                                                    <i class="fa-solid fa-user-graduate"></i>
+
+                                                {% endif %}
+
+
+                                            </div>
+
+
+                                            <div class="dashboard-borrower-copy">
+
+                                                <strong>
+
+                                                    {{ item.full_name }}
+
+                                                </strong>
+
+                                                <span>
+
+                                                    {{ item.user_type }}
+
+                                                </span>
+
+                                            </div>
+
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- THESIS -->
+
+                                    <td>
+
+                                        <div class="dashboard-thesis-cell">
+
+                                            <i class="fa-solid fa-book-open"></i>
+
+                                            <span>
+
+                                                {{ item.thesis.title }}
+
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- DATE -->
+
+                                    <td>
+
+                                        <div class="dashboard-date-cell">
+
+                                            <i class="fa-regular fa-calendar"></i>
+
+                                            <span>
+
+
+                                                {% if item.request_date %}
+
+                                                    {{ item.request_date.strftime('%b %d, %Y') }}
+
+                                                {% else %}
+
+                                                    —
+
+                                                {% endif %}
+
+
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+
+                                    <!-- STATUS -->
+
+                                    <td>
+
+                                        <span
+                                            class="
+                                                dashboard-status-pill
+                                                status-{{ item.status|lower }}
+                                            "
+                                        >
+
+                                            <span class="dashboard-status-dot"></span>
+
+                                            {{ item.status }}
+
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- ACTION -->
+
+                                    <td class="dashboard-action-cell">
+
+                                        <a
+                                            href="{{ url_for(
+                                                'admin.borrowing_request_details',
+                                                request_id=item.id
+                                            ) }}"
+                                            class="dashboard-view-button"
+                                        >
+
+                                            View
+
+                                            <i class="fa-solid fa-arrow-right"></i>
+
+                                        </a>
+
+                                    </td>
+
+
+                                </tr>
+
+
+                            {% else %}
+
+
+                                <tr>
+
+                                    <td
+                                        colspan="6"
+                                        class="admin-empty-table"
+                                    >
+
+                                        <div class="dashboard-empty-state">
+
+                                            <i class="fa-regular fa-folder-open"></i>
+
+                                            <strong>
+
+                                                No borrowing activity yet
+
+                                            </strong>
+
+                                            <span>
+
+                                                New borrowing requests will appear
+                                                here automatically.
+
+                                            </span>
+
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+
+                            {% endfor %}
+
+
+                        </tbody>
+
+
+                    </table>
+
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             POPULAR SEARCHES
+        ================================================== -->
+
+        <aside class="dashboard-search-panel">
+
+
+            <div class="dashboard-search-panel-head">
+
+
+                <div>
+
+                    <span class="dashboard-section-kicker">
+
+                        SEARCH ACTIVITY
+
+                    </span>
+
+                    <h2>
+
+                        Popular Searches
+
+                    </h2>
+
+                    <p>
+
+                        Most frequently searched terms.
+
+                    </p>
+
+                </div>
+
+
+                <div class="dashboard-search-panel-icon">
+
+                    <i class="fa-solid fa-chart-simple"></i>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="dashboard-search-ranking">
+
+
+                {% for item in most_searched_terms %}
+
+
+                    <div class="dashboard-search-item">
+
+
+                        <div class="dashboard-search-item-top">
+
+                            <span>
+
+                                {{ loop.index }}.
+                                {{ item.normalized_query }}
+
+                            </span>
+
+                            <strong>
+
+                                {{ item.search_count }}
+
+                            </strong>
+
+                        </div>
+
+
+                        <progress
+                            class="dashboard-search-progress"
+                            value="{{ item.search_count }}"
+                            max="{{ max_search_count }}"
+                        >
+                            {{ item.search_count }}
+                        </progress>
+
+
+                    </div>
+
+
+                {% else %}
+
+
+                    <div class="dashboard-search-empty">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        <strong>
+
+                            No search data yet
+
+                        </strong>
+
+                        <span>
+
+                            Search rankings will update as users
+                            search the collection.
+
+                        </span>
+
+                    </div>
+
+
+                {% endfor %}
+
+
+            </div>
+
+
+        </aside>
+
+
+    </div>
+
+
+</div>
+
+{% endblock %}

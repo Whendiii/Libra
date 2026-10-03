@@ -1,0 +1,558 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Borrowing Request | LIBRA
+{% endblock %}
+
+
+{% block content %}
+
+<section class="borrow-page">
+
+    <div class="borrow-wrapper">
+
+
+        <a
+            href="{{ url_for(
+                'main.thesis_details',
+                thesis_id=thesis.id
+            ) }}"
+            class="borrow-back-link"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Thesis Details
+        </a>
+
+
+        <div class="borrow-layout">
+
+
+            <!-- LEFT SIDE -->
+
+            <div class="borrow-form-card">
+
+
+                <div class="borrow-form-heading">
+
+                    <span class="borrow-eyebrow">
+                        BORROWING REQUEST
+                    </span>
+
+                    <h1>
+                        Request to Borrow
+                    </h1>
+
+                    <p>
+                        Complete the form below.
+                        The library administrator will view
+                        your request before the thesis is
+                        released.
+                    </p>
+
+                </div>
+
+
+                {% if errors %}
+
+                    <div class="borrow-error-box">
+
+                        <strong>
+                            Please correct the following:
+                        </strong>
+
+                        <ul>
+
+                            {% for error in errors %}
+
+                                <li>
+                                    {{ error }}
+                                </li>
+
+                            {% endfor %}
+
+                        </ul>
+
+                    </div>
+
+                {% endif %}
+
+
+                <form
+                    method="POST"
+                    class="borrow-form"
+                >
+
+
+                    <!-- PERSONAL INFO -->
+
+                    <div class="borrow-section-title">
+
+                        <span>
+                            01
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Borrower Information
+                            </strong>
+
+                            <small>
+                                Basic information about the borrower
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="borrow-form-grid">
+
+
+                        <div class="borrow-field full-width">
+
+                            <label>
+                                Full Name
+                            </label>
+
+                            <input
+                                type="text"
+                                name="full_name"
+                                value="{{ request.form.get('full_name', '') }}"
+                                placeholder="Enter your complete name"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="borrow-field">
+
+                            <label>
+                                Gender
+                            </label>
+
+                            <select
+                                name="gender"
+                                required
+                            >
+
+                                <option value="">
+                                    Select gender
+                                </option>
+
+                                <option
+                                    value="Female"
+                                >
+                                    Female
+                                </option>
+
+                                <option
+                                    value="Male"
+                                >
+                                    Male
+                                </option>
+
+                                <option
+                                    value="Prefer not to say"
+                                >
+                                    Prefer not to say
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="borrow-field">
+
+                            <label>
+                                Age
+                            </label>
+
+                            <input
+                                type="number"
+                                name="age"
+                                min="15"
+                                max="100"
+                                placeholder="Age"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="borrow-field">
+
+                            <label>
+                                User Type
+                            </label>
+
+                            <select
+                                name="user_type"
+                                required
+                            >
+
+                                <option value="">
+                                    Select user type
+                                </option>
+
+                                <option value="Student">
+                                    Student
+                                </option>
+
+                                <option value="Faculty">
+                                    Faculty
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="borrow-field">
+
+                            <label>
+                                Academic Level
+                            </label>
+
+                            <select
+                                name="academic_level_id"
+                                required
+                            >
+
+                                <option value="">
+                                    Select level
+                                </option>
+
+                                {% for level in academic_levels %}
+
+                                    <option
+                                        value="{{ level.id }}"
+                                    >
+                                        {{ level.academic_level }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="borrow-field full-width">
+
+                            <label>
+                                Course / Program
+                            </label>
+
+                            <select
+                                name="program_id"
+                                required
+                            >
+
+                                <option value="">
+                                    Select course / program
+                                </option>
+
+                                {% for program in programs %}
+
+                                    <option
+                                        value="{{ program.id }}"
+                                    >
+                                        {{ program.program_name }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="borrow-field">
+
+                            <label>
+                                Year Level
+                            </label>
+
+                            <input
+                                type="text"
+                                name="year_level"
+                                placeholder="Example: 3rd Year"
+                            >
+
+                        </div>
+
+
+                        <div class="borrow-field">
+
+                            <label>
+                                Department / College
+                            </label>
+
+                            <select
+                                name="department_id"
+                                required
+                            >
+
+                                <option value="">
+                                    Select department
+                                </option>
+
+                                {% for department in departments %}
+
+                                    <option
+                                        value="{{ department.id }}"
+                                    >
+                                        {{ department.department_college }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="borrow-field full-width">
+
+                            <label>
+                                Address
+                            </label>
+
+                            <textarea
+                                name="address"
+                                rows="3"
+                                placeholder="Enter your address"
+                                required
+                            ></textarea>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <!-- BORROWING INFO -->
+
+                    <div class="borrow-section-title second">
+
+                        <span>
+                            02
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                Borrowing Details
+                            </strong>
+
+                            <small>
+                                Select your borrowing duration and location
+                            </small>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="borrow-form-grid">
+
+
+                        <div class="borrow-field">
+
+                            <label>
+                                Borrowing Duration
+                            </label>
+
+                            <select
+                                name="duration_hours"
+                                required
+                            >
+
+                                <option value="">
+                                    Select duration
+                                </option>
+
+                                <option value="1">
+                                    1 Hour
+                                </option>
+
+                                <option value="2">
+                                    2 Hours
+                                </option>
+
+                                <option value="3">
+                                    3 Hours
+                                </option>
+
+                                <option value="4">
+                                    4 Hours
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="borrow-field">
+
+                            <label>
+                                Borrowing Location
+                            </label>
+
+                            <select
+                                name="borrowing_location"
+                                required
+                            >
+
+                                <option value="">
+                                    Select location
+                                </option>
+
+                                <option value="Within Library Only">
+                                    Within Library Only
+                                </option>
+
+                                <option value="Outside Library / Campus">
+                                    Outside Library / Campus
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="borrow-note">
+
+                        <i class="fa-solid fa-circle-info"></i>
+
+                        <p>
+                            Submitting this form creates a
+                            <strong>Requested</strong>
+                            borrowing record only.
+                            The thesis remains available until
+                            the administrator actually marks it
+                            as <strong>Borrowed</strong>.
+                        </p>
+
+                    </div>
+
+
+
+                    <button
+                        type="submit"
+                        class="borrow-submit-button"
+                    >
+                        Submit Borrowing Request
+                    </button>
+
+
+                </form>
+
+
+            </div>
+
+
+
+            <!-- RIGHT SIDE -->
+
+            <aside class="borrow-thesis-card">
+
+
+                <span class="borrow-selected-label">
+                    SELECTED RESEARCH
+                </span>
+
+
+                <h2>
+                    {{ thesis.title }}
+                </h2>
+
+
+                <div class="borrow-thesis-meta">
+
+                    <div>
+
+                        <span>
+                            Author
+                        </span>
+
+                        <strong>
+                            {{ thesis.author_researchers }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Program
+                        </span>
+
+                        <strong>
+                            {{ thesis.program.program_name }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Year
+                        </span>
+
+                        <strong>
+                            {{ thesis.year_published }}
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            Shelf Location
+                        </span>
+
+                        <strong>
+                            {{ thesis.shelf_location }}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="borrow-availability">
+
+                    <span>
+                        Availability
+                    </span>
+
+                    <strong>
+                        {{ thesis.availability }}
+                    </strong>
+
+                </div>
+
+
+            </aside>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

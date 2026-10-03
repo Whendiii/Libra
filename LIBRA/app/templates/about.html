@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block title %}
+About LIBRA
+{% endblock %}
+
+{% block content %}
+
+<section class="about-hero">
+    <div class="about-hero-inner">
+
+        <span class="about-eyebrow">
+            ABOUT THE SYSTEM
+        </span>
+
+        <h1>
+            About <span>LIBRA</span>
+        </h1>
+
+        <p class="about-hero-description">
+            Library Integrated Borrowing, Research, and Analytics
+            is a research discovery and library support system
+            designed for the Isabela State University – Echague
+            Campus research community.
+        </p>
+
+    </div>
+</section>
+
+
+<section class="about-page">
+
+    <section class="about-intro-grid">
+
+        <div class="about-intro-copy">
+
+            <span class="about-section-label">
+                ABOUT LIBRA
+            </span>
+
+            <h2>
+                Making previous research easier to discover.
+            </h2>
+
+            <p>
+                LIBRA provides students and researchers with a
+                convenient way to explore thesis and capstone
+                projects available in the university library.
+            </p>
+
+            <p>
+                Instead of manually going through research records,
+                users can search the collection using information
+                such as thesis titles, authors, programs, research
+                fields, topics, and keywords.
+            </p>
+
+        </div>
+
+
+        <div class="about-name-card">
+
+            <img
+                src="{{ url_for('static', filename='img/libra_logo.png') }}"
+                alt="LIBRA Logo"
+                class="about-name-logo"
+            >
+
+            <div class="about-name-copy">
+
+                <span>
+                    LIBRA STANDS FOR
+                </span>
+
+                <h3>
+                    Library Integrated Borrowing,
+                    Research, and Analytics
+                </h3>
+
+                <p>
+                    A centralized system for discovering research
+                    and supporting library borrowing activities.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="about-purpose-section">
+
+        <div class="about-purpose-icon">
+            <i class="fa-solid fa-bullseye"></i>
+        </div>
+
+        <div class="about-purpose-copy">
+
+            <span class="about-section-label">
+                OUR PURPOSE
+            </span>
+
+            <h2>
+                Connecting researchers with existing knowledge.
+            </h2>
+
+            <p>
+                LIBRA aims to make the university's research
+                collection more accessible and organized while
+                providing a clearer process for locating and
+                borrowing available research materials.
+            </p>
+
+            <p>
+                By making previous studies easier to find, the
+                system can help students explore existing topics,
+                identify related research, and discover studies
+                that may support the development of their own
+                academic work.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <section class="about-features-section">
+
+        <div class="about-section-heading">
+
+            <span class="about-section-label">
+                WHAT LIBRA OFFERS
+            </span>
+
+            <h2>
+                Research discovery in one place.
+            </h2>
+
+            <p>
+                Core features designed to support research
+                exploration and library services.
+            </p>
+
+        </div>
+
+
+        <div class="about-feature-grid">
+
+            <article class="about-feature-card">
+                <div class="about-feature-icon">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <h3>Search & Discovery</h3>
+                <p>
+                    Find previous research using thesis titles,
+                    authors, programs, research fields, topics,
+                    and keywords.
+                </p>
+            </article>
+
+            <article class="about-feature-card">
+                <div class="about-feature-icon">
+                    <i class="fa-regular fa-file-lines"></i>
+                </div>
+                <h3>Thesis Information</h3>
+                <p>
+                    View important research information including
+                    authors, abstract, keywords, publication year,
+                    and library availability.
+                </p>
+            </article>
+
+            <article class="about-feature-card">
+                <div class="about-feature-icon">
+                    <i class="fa-solid fa-book"></i>
+                </div>
+                <h3>Borrowing Support</h3>
+                <p>
+                    Submit borrowing information through the system
+                    and use the generated borrowing slip for the
+                    library borrowing process.
+                </p>
+            </article>
+
+            <article class="about-feature-card">
+                <div class="about-feature-icon">
+                    <i class="fa-solid fa-link"></i>
+                </div>
+                <h3>Related Research</h3>
+                <p>
+                    Discover other studies connected to the
+                    research being viewed through related topics,
+                    fields, and research information.
+                </p>
+            </article>
+
+            <article class="about-feature-card">
+                <div class="about-feature-icon">
+                    <i class="fa-solid fa-chart-column"></i>
+                </div>
+                <h3>Library Analytics</h3>
+                <p>
+                    Help library administrators understand search
+                    activity, borrowing trends, popular research
+                    topics, and collection usage.
+                </p>
+            </article>
+
+            <article class="about-feature-card">
+                <div class="about-feature-icon">
+                    <i class="fa-solid fa-location-dot"></i>
+                </div>
+                <h3>Collection Availability</h3>
+                <p>
+                    Check whether a research material is available
+                    or currently borrowed and identify its shelf
+                    location before visiting the library.
+                </p>
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <section class="about-community-section">
+
+        <div class="about-community-content">
+
+            <span class="about-section-label light">
+                FOR THE ISU–ECHAGUE RESEARCH COMMUNITY
+            </span>
+
+            <h2>
+                Explore. Discover. Build on research.
+            </h2>
+
+            <p>
+                LIBRA supports students and researchers by making
+                previous academic work easier to discover while
+                helping the campus library maintain a more organized
+                research and borrowing environment.
+            </p>
+
+            <a
+                href="{{ url_for('main.search') }}"
+                class="about-search-button"
+            >
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Explore Research</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
+        </div>
+
+    </section>
+
+</section>
+
+{% endblock %}

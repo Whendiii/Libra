@@ -1,0 +1,717 @@
+{% extends "base.html" %}
+
+{% block title %}
+Search Research | LIBRA
+{% endblock %}
+
+{% block content %}
+
+<section class="search-page">
+
+    <!-- =====================================================
+         SEARCH HEADER
+    ====================================================== -->
+
+    <div class="search-topbar">
+
+        <div class="search-topbar-inner">
+
+            <div class="search-page-heading">
+
+                <span class="search-page-eyebrow">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                    RESEARCH DISCOVERY
+                </span>
+
+                <h1>
+                    Search the LIBRA Collection
+                </h1>
+
+                <p>
+                    Find previous research using keywords, authors,
+                    programs, fields, topics, and publication year.
+                </p>
+
+            </div>
+
+            <form
+                action="{{ url_for('main.search') }}"
+                method="GET"
+                class="search-page-form"
+            >
+
+                <div class="search-page-input">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input
+                        id="searchInput"
+                        type="text"
+                        name="q"
+                        value="{{ query }}"
+                        autocomplete="off"
+                        placeholder="Search thesis title, author, program, field, topic, or keyword..."
+                    >
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="search-page-button"
+                >
+                    <span>Search</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+                <div
+                    id="searchSuggestions"
+                    class="search-suggestions search-page-suggestions"
+                ></div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         SEARCH BODY
+    ====================================================== -->
+
+    <div class="search-layout">
+
+
+        <!-- =================================================
+             FILTERS
+        ================================================== -->
+
+        <aside class="search-filter-panel">
+
+            <div class="filter-title">
+
+                <div class="filter-title-icon">
+                    <i class="fa-solid fa-sliders"></i>
+                </div>
+
+                <div>
+                    <strong>Refine Results</strong>
+                    <span>Filter the research collection</span>
+                </div>
+
+            </div>
+
+            <form
+                id="filterForm"
+                action="{{ url_for('main.search') }}"
+                method="GET"
+            >
+
+                <input
+                    type="hidden"
+                    name="q"
+                    value="{{ query }}"
+                >
+
+
+                <!-- ACADEMIC LEVEL -->
+
+                <div class="filter-group">
+
+                    <label for="filterLevel">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        Academic Level
+                    </label>
+
+                    <select
+                        id="filterLevel"
+                        name="level"
+                        class="auto-submit-filter"
+                    >
+
+                        <option value="">
+                            All Levels
+                        </option>
+
+                        {% for level in academic_levels %}
+
+                            <option
+                                value="{{ level.level_code }}"
+                                {% if academic_level == level.level_code %}
+                                selected
+                                {% endif %}
+                            >
+                                {{ level.academic_level }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- PROGRAM -->
+
+                <div class="filter-group">
+
+                    <label for="filterProgram">
+                        <i class="fa-solid fa-building-columns"></i>
+                        Course / Program
+                    </label>
+
+                    <select
+                        id="filterProgram"
+                        name="program"
+                        class="auto-submit-filter"
+                    >
+
+                        <option value="">
+                            All Programs
+                        </option>
+
+                        {% for program in programs %}
+
+                            <option
+                                value="{{ program.id }}"
+                                {% if program_id|string == program.id|string %}
+                                selected
+                                {% endif %}
+                            >
+                                {{ program.program_name }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- DEPARTMENT -->
+
+                <div class="filter-group">
+
+                    <label for="filterDepartment">
+                        <i class="fa-solid fa-sitemap"></i>
+                        Department
+                    </label>
+
+                    <select
+                        id="filterDepartment"
+                        name="department"
+                        class="auto-submit-filter"
+                    >
+
+                        <option value="">
+                            All Departments
+                        </option>
+
+                        {% for department in departments %}
+
+                            <option
+                                value="{{ department.id }}"
+                                {% if department_id|string == department.id|string %}
+                                selected
+                                {% endif %}
+                            >
+                                {{ department.department_code }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- RESEARCH FIELD -->
+
+                <div class="filter-group">
+
+                    <label for="filterField">
+                        <i class="fa-solid fa-flask"></i>
+                        Research Field
+                    </label>
+
+                    <select
+                        id="filterField"
+                        name="field"
+                        class="auto-submit-filter"
+                    >
+
+                        <option value="">
+                            All Fields
+                        </option>
+
+                        {% for field in research_fields %}
+
+                            <option
+                                value="{{ field }}"
+                                {% if research_field == field %}
+                                selected
+                                {% endif %}
+                            >
+                                {{ field }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- YEAR -->
+
+                <div class="filter-group">
+
+                    <label for="filterYear">
+                        <i class="fa-regular fa-calendar"></i>
+                        Year Published
+                    </label>
+
+                    <select
+                        id="filterYear"
+                        name="year"
+                        class="auto-submit-filter"
+                    >
+
+                        <option value="">
+                            All Years
+                        </option>
+
+                        {% for year in years %}
+
+                            <option
+                                value="{{ year }}"
+                                {% if year_published|string == year|string %}
+                                selected
+                                {% endif %}
+                            >
+                                {{ year }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- AVAILABILITY -->
+
+                <div class="filter-group">
+
+                    <label for="filterAvailability">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Availability
+                    </label>
+
+                    <select
+                        id="filterAvailability"
+                        name="availability"
+                        class="auto-submit-filter"
+                    >
+
+                        <option value="">
+                            All Status
+                        </option>
+
+                        <option
+                            value="Available"
+                            {% if availability == 'Available' %}
+                            selected
+                            {% endif %}
+                        >
+                            Available
+                        </option>
+
+                        <option
+                            value="Borrowed"
+                            {% if availability == 'Borrowed' %}
+                            selected
+                            {% endif %}
+                        >
+                            Borrowed
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- AUTHOR -->
+
+                <div class="filter-group">
+
+                    <label for="filterAuthor">
+                        <i class="fa-regular fa-user"></i>
+                        Author
+                    </label>
+
+                    <input
+                        id="filterAuthor"
+                        type="text"
+                        name="author"
+                        value="{{ author }}"
+                        placeholder="Author name..."
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="apply-filter-button"
+                >
+                    <i class="fa-solid fa-filter"></i>
+                    Apply Filters
+                </button>
+
+                <a
+                    href="{{ url_for('main.search') }}"
+                    class="clear-filter-button"
+                >
+                    <i class="fa-solid fa-rotate-left"></i>
+                    Clear Filters
+                </a>
+
+            </form>
+
+        </aside>
+
+
+        <!-- =================================================
+             RESULTS
+        ================================================== -->
+
+        <section class="search-results-area">
+
+            <div class="results-heading">
+
+                <div class="results-heading-copy">
+
+                    <span class="results-eyebrow">
+                        <i class="fa-solid fa-layer-group"></i>
+                        SEARCH RESULTS
+                    </span>
+
+                    <div class="results-title-line">
+
+                        <h1>
+                            {{ pagination.total }}
+                            {% if pagination.total == 1 %}
+                                result
+                            {% else %}
+                                results
+                            {% endif %}
+                        </h1>
+
+                        {% if query %}
+                            <span>
+                                for “{{ query }}”
+                            </span>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+                <div class="results-summary-icon">
+                    <i class="fa-solid fa-file-lines"></i>
+                </div>
+
+            </div>
+
+
+            <div class="search-result-list">
+
+                {% for thesis in results %}
+
+                    <article class="search-result-card">
+
+                        <div class="search-result-leading">
+
+                            <div class="result-document-icon">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </div>
+
+                        </div>
+
+                        <div class="search-result-content">
+
+                            <div class="result-title-row">
+
+                                <h2>
+                                    {{ thesis.title }}
+                                </h2>
+
+                                <div class="result-badges">
+
+                                    <span
+                                        class="
+                                            result-status
+                                            {% if thesis.availability == 'Available' %}
+                                            available
+                                            {% else %}
+                                            borrowed
+                                            {% endif %}
+                                        "
+                                    >
+                                        <i class="fa-solid fa-circle"></i>
+                                        {{ thesis.availability }}
+                                    </span>
+
+                                    <span class="result-level">
+                                        <i class="fa-solid fa-graduation-cap"></i>
+                                        {{ thesis.program.academic_level.academic_level }}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="result-meta-row">
+
+                                <span>
+                                    <i class="fa-regular fa-user"></i>
+                                    {{ thesis.author_researchers }}
+                                </span>
+
+                                <span>
+                                    <i class="fa-solid fa-building-columns"></i>
+                                    {{ thesis.program.program_name }}
+                                </span>
+
+                                <span>
+                                    <i class="fa-regular fa-calendar"></i>
+                                    {{ thesis.year_published }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="result-field-row">
+
+                                <span>
+                                    <strong>Field</strong>
+                                    {{ thesis.research_field }}
+                                </span>
+
+                                <span>
+                                    <strong>Topic</strong>
+                                    {{ thesis.research_topic }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="result-keywords">
+
+                                {% if thesis.research_field %}
+
+                                    <span>
+                                        <i class="fa-solid fa-tag"></i>
+                                        {{ thesis.research_field }}
+                                    </span>
+
+                                {% endif %}
+
+                                {% if thesis.research_topic %}
+
+                                    <span>
+                                        <i class="fa-solid fa-tag"></i>
+                                        {{ thesis.research_topic }}
+                                    </span>
+
+                                {% endif %}
+
+                                {% if thesis.research_subtopic %}
+
+                                    <span>
+                                        <i class="fa-solid fa-tag"></i>
+                                        {{ thesis.research_subtopic }}
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="result-location">
+
+                                <i class="fa-solid fa-location-dot"></i>
+
+                                <span>
+                                    Shelf {{ thesis.shelf_location }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="result-action">
+
+                            <a
+                                href="{{ url_for(
+                                    'main.thesis_details',
+                                    thesis_id=thesis.id
+                                ) }}"
+                                class="search-view-details"
+                            >
+                                <span>View Details</span>
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </a>
+
+                        </div>
+
+                    </article>
+
+                {% else %}
+
+                    <div class="search-empty-state">
+
+                        <div class="search-empty-icon">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </div>
+
+                        <h3>
+                            No research found
+                        </h3>
+
+                        <p>
+                            Try another keyword or adjust your filters.
+                        </p>
+
+                        <a
+                            href="{{ url_for('main.search') }}"
+                            class="search-empty-reset"
+                        >
+                            Reset Search
+                        </a>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <!-- PAGINATION -->
+
+            {% if pagination.pages > 1 %}
+
+                <div class="pagination">
+
+                    {% if pagination.has_prev %}
+
+                        <a
+                            href="{{ url_for(
+                                'main.search',
+                                q=query,
+                                level=academic_level,
+                                program=program_id,
+                                department=department_id,
+                                field=research_field,
+                                year=year_published,
+                                availability=availability,
+                                author=author,
+                                page=pagination.prev_num
+                            ) }}"
+                            aria-label="Previous page"
+                        >
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+
+                    {% endif %}
+
+
+                    {% for page_number in pagination.iter_pages(
+                        left_edge=1,
+                        right_edge=1,
+                        left_current=2,
+                        right_current=2
+                    ) %}
+
+                        {% if page_number %}
+
+                            <a
+                                href="{{ url_for(
+                                    'main.search',
+                                    q=query,
+                                    level=academic_level,
+                                    program=program_id,
+                                    department=department_id,
+                                    field=research_field,
+                                    year=year_published,
+                                    availability=availability,
+                                    author=author,
+                                    page=page_number
+                                ) }}"
+                                class="
+                                    {% if page_number == pagination.page %}
+                                    active
+                                    {% endif %}
+                                "
+                            >
+                                {{ page_number }}
+                            </a>
+
+                        {% else %}
+
+                            <span>…</span>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+
+                    {% if pagination.has_next %}
+
+                        <a
+                            href="{{ url_for(
+                                'main.search',
+                                q=query,
+                                level=academic_level,
+                                program=program_id,
+                                department=department_id,
+                                field=research_field,
+                                year=year_published,
+                                availability=availability,
+                                author=author,
+                                page=pagination.next_num
+                            ) }}"
+                            aria-label="Next page"
+                        >
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script
+    src="{{ url_for('static', filename='js/search.js') }}"
+></script>
+
+<script
+    src="{{ url_for('static', filename='js/filters.js') }}"
+></script>
+
+{% endblock %}

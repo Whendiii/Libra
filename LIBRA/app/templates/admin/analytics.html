@@ -1,0 +1,2203 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}
+Library Analytics | LIBRA
+{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+
+<div class="analytics-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
+    <header class="analytics-header">
+
+        <div>
+
+            <span class="analytics-eyebrow">
+                LIBRARY INSIGHTS
+            </span>
+
+            <h1>
+                Library Analytics
+            </h1>
+
+            <p>
+                Analyze thesis searches, borrowing activity,
+                research interests, and collection availability
+                across LIBRA.
+            </p>
+
+        </div>
+
+
+        <div class="analytics-header-badge">
+
+            <div class="analytics-header-badge-icon">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+
+            <div>
+                <span>Analytics Overview</span>
+                <strong>Live Repository Data</strong>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         FILTERS
+    ====================================================== -->
+
+    <section class="analytics-filter-card">
+
+        <div class="analytics-filter-heading">
+
+            <div class="analytics-filter-heading-icon">
+                <i class="fa-solid fa-sliders"></i>
+            </div>
+
+            <div>
+                <strong>Analytics Period</strong>
+                <span>
+                    Filter the dashboard by month, semester, or school year.
+                </span>
+            </div>
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="{{ url_for('admin.analytics') }}"
+            class="analytics-filter-form"
+        >
+
+            <!-- MONTH -->
+            <div class="analytics-filter-field">
+
+                <label for="analyticsMonth">
+                    Month
+                </label>
+
+                <div class="analytics-select-shell">
+
+                    <i class="fa-regular fa-calendar"></i>
+
+                    <select
+                        id="analyticsMonth"
+                        name="month"
+                    >
+                        <option value="">
+                            All Months
+                        </option>
+
+                        {% set month_options = [
+                            ('01', 'January'),
+                            ('02', 'February'),
+                            ('03', 'March'),
+                            ('04', 'April'),
+                            ('05', 'May'),
+                            ('06', 'June'),
+                            ('07', 'July'),
+                            ('08', 'August'),
+                            ('09', 'September'),
+                            ('10', 'October'),
+                            ('11', 'November'),
+                            ('12', 'December')
+                        ] %}
+
+                        {% for month_num, month_name in month_options %}
+
+                            <option
+                                value="{{ month_num }}"
+                                {% if selected_month == month_num %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ month_name }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                    <i class="fa-solid fa-chevron-down"></i>
+
+                </div>
+
+            </div>
+
+
+            <!-- SEMESTER -->
+            <div class="analytics-filter-field">
+
+                <label for="analyticsSemester">
+                    Semester
+                </label>
+
+                <div class="analytics-select-shell">
+
+                    <i class="fa-solid fa-graduation-cap"></i>
+
+                    <select
+                        id="analyticsSemester"
+                        name="semester"
+                    >
+                        <option value="">
+                            All Semesters
+                        </option>
+
+                        <option
+                            value="1"
+                            {% if selected_semester == "1" %}
+                                selected
+                            {% endif %}
+                        >
+                            1st Semester
+                        </option>
+
+                        <option
+                            value="2"
+                            {% if selected_semester == "2" %}
+                                selected
+                            {% endif %}
+                        >
+                            2nd Semester
+                        </option>
+                    </select>
+
+                    <i class="fa-solid fa-chevron-down"></i>
+
+                </div>
+
+            </div>
+
+
+            <!-- SCHOOL YEAR -->
+            <div class="analytics-filter-field">
+
+                <label for="analyticsSchoolYear">
+                    School Year
+                </label>
+
+                <div class="analytics-select-shell">
+
+                    <i class="fa-solid fa-school"></i>
+
+                    <select
+                        id="analyticsSchoolYear"
+                        name="school_year"
+                    >
+                        <option value="">
+                            All School Years
+                        </option>
+
+                        <option
+                            value="2025-2026"
+                            {% if selected_school_year == "2025-2026" %}
+                                selected
+                            {% endif %}
+                        >
+                            2025–2026
+                        </option>
+
+                        <option
+                            value="2026-2027"
+                            {% if selected_school_year == "2026-2027" %}
+                                selected
+                            {% endif %}
+                        >
+                            2026–2027
+                        </option>
+                    </select>
+
+                    <i class="fa-solid fa-chevron-down"></i>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="analytics-apply-button"
+            >
+                <i class="fa-solid fa-filter"></i>
+                Apply
+            </button>
+
+
+            <a
+                href="{{ url_for('admin.analytics') }}"
+                class="analytics-clear-button"
+            >
+                <i class="fa-solid fa-rotate-left"></i>
+                Clear
+            </a>
+
+        </form>
+
+    </section>
+
+
+    <!-- =====================================================
+         KPI CARDS
+    ====================================================== -->
+
+    <section class="analytics-kpi-grid">
+
+        <article class="analytics-kpi-card">
+
+            <div class="analytics-kpi-icon green">
+                <i class="fa-solid fa-book"></i>
+            </div>
+
+            <div>
+                <span>Total Thesis</span>
+                <strong>{{ total_theses }}</strong>
+                <small>Research records in LIBRA</small>
+            </div>
+
+        </article>
+
+
+        <article class="analytics-kpi-card">
+
+            <div class="analytics-kpi-icon gold">
+                <i class="fa-solid fa-arrow-right-arrow-left"></i>
+            </div>
+
+            <div>
+                <span>Total Borrowings</span>
+                <strong>{{ total_borrowings }}</strong>
+                <small>Recorded borrowing transactions</small>
+            </div>
+
+        </article>
+
+
+        <article class="analytics-kpi-card">
+
+            <div class="analytics-kpi-icon deep">
+                <i class="fa-solid fa-book-open-reader"></i>
+            </div>
+
+            <div>
+                <span>Active Borrowings</span>
+                <strong>{{ active_borrowings }}</strong>
+                <small>Currently borrowed research</small>
+            </div>
+
+        </article>
+
+
+        <article class="analytics-kpi-card">
+
+            <div class="analytics-kpi-icon soft">
+                <i class="fa-solid fa-file-circle-check"></i>
+            </div>
+
+            <div>
+                <span>Pending Requests</span>
+                <strong>{{ pending_requests }}</strong>
+                <small>Waiting for librarian action</small>
+            </div>
+
+        </article>
+
+
+        <article class="analytics-kpi-card">
+
+            <div class="analytics-kpi-icon green">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+
+            <div>
+                <span>Total Searches</span>
+                <strong>{{ total_searches }}</strong>
+                <small>Recorded research searches</small>
+            </div>
+
+        </article>
+
+
+        <article class="analytics-kpi-card">
+
+            <div class="analytics-kpi-icon gold">
+                <i class="fa-solid fa-arrow-rotate-left"></i>
+            </div>
+
+            <div>
+                <span>Returned</span>
+                <strong>{{ returned_count }}</strong>
+                <small>Completed borrowings</small>
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =====================================================
+         QUICK INSIGHTS
+    ====================================================== -->
+
+    <section class="analytics-insight-grid">
+
+        <article class="analytics-insight-card">
+
+            <div class="analytics-insight-icon green">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+            </div>
+
+            <div>
+
+                <span class="analytics-insight-label">
+                    Top Search Keyword
+                </span>
+
+                {% if top_keyword %}
+
+                    <strong class="analytics-insight-value">
+                        {{ top_keyword.normalized_query|title }}
+                    </strong>
+
+                    <small>
+                        {{ top_keyword.search_count }}
+                        search{% if top_keyword.search_count != 1 %}es{% endif %}
+                    </small>
+
+                {% else %}
+
+                    <strong class="analytics-insight-value">
+                        No search data yet
+                    </strong>
+
+                    <small>
+                        Search activity will appear here.
+                    </small>
+
+                {% endif %}
+
+            </div>
+
+        </article>
+
+
+        <article class="analytics-insight-card">
+
+            <div class="analytics-insight-icon gold">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+
+            <div>
+
+                <span class="analytics-insight-label">
+                    Most Active Program
+                </span>
+
+                {% if most_active_program %}
+
+                    <strong class="analytics-insight-value compact">
+                        {{ most_active_program.program_name }}
+                    </strong>
+
+                    <small>
+                        {{ most_active_program.borrow_count }}
+                        borrowing{% if most_active_program.borrow_count != 1 %}s{% endif %}
+                    </small>
+
+                {% else %}
+
+                    <strong class="analytics-insight-value">
+                        No borrowing data yet
+                    </strong>
+
+                    <small>
+                        Program activity will appear here.
+                    </small>
+
+                {% endif %}
+
+            </div>
+
+        </article>
+
+
+        <article class="analytics-insight-card">
+
+            <div class="analytics-insight-icon green">
+                <i class="fa-solid fa-layer-group"></i>
+            </div>
+
+            <div>
+
+                <span class="analytics-insight-label">
+                    Collection Availability
+                </span>
+
+                <strong class="analytics-insight-value">
+                    {{ available_count }} Available
+                </strong>
+
+                <small>
+                    {{ borrowed_theses_count }} currently borrowed
+                </small>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =====================================================
+         MAIN ANALYTICS ROW
+    ====================================================== -->
+
+    <section class="analytics-two-column-grid">
+
+        <article class="analytics-chart-card wide">
+
+            <div class="analytics-chart-head">
+
+                <div>
+
+                    <span class="analytics-chart-kicker">
+                        ACTIVITY OVER TIME
+                    </span>
+
+                    <h2>
+                        Monthly Search & Borrowing Trends
+                    </h2>
+
+                    <p>
+                        Compare recorded research searches and borrowing activity by month.
+                    </p>
+
+                </div>
+
+
+                <div class="analytics-chart-head-icon">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+
+            </div>
+
+
+            <div class="analytics-chart-wrap analytics-chart-large">
+                <canvas id="monthlyTrendChart"></canvas>
+            </div>
+
+        </article>
+
+
+        <article class="analytics-chart-card">
+
+            <div class="analytics-chart-head">
+
+                <div>
+
+                    <span class="analytics-chart-kicker">
+                        BORROWING RANKING
+                    </span>
+
+                    <h2>
+                        Most Borrowed Thesis
+                    </h2>
+
+                    <p>
+                        Research records ranked by borrowing frequency.
+                    </p>
+
+                </div>
+
+
+                <div class="analytics-chart-head-icon gold">
+                    <i class="fa-solid fa-ranking-star"></i>
+                </div>
+
+            </div>
+
+
+            <div class="analytics-chart-wrap analytics-chart-large">
+                <canvas id="mostBorrowedChart"></canvas>
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =====================================================
+         PROGRAM / TOPIC / AVAILABILITY
+    ====================================================== -->
+
+    <section class="analytics-three-column-grid">
+
+        <article class="analytics-chart-card">
+
+            <div class="analytics-chart-head">
+
+                <div>
+
+                    <span class="analytics-chart-kicker">
+                        PROGRAM ACTIVITY
+                    </span>
+
+                    <h2>
+                        Most Active Programs
+                    </h2>
+
+                    <p>
+                        Programs ranked by borrowing activity.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="analytics-chart-wrap analytics-chart-medium">
+                <canvas id="activeProgramsChart"></canvas>
+            </div>
+
+        </article>
+
+
+        <article class="analytics-chart-card">
+
+            <div class="analytics-chart-head">
+
+                <div>
+
+                    <span class="analytics-chart-kicker">
+                        RESEARCH INTEREST
+                    </span>
+
+                    <h2>
+                        Popular Research Topics
+                    </h2>
+
+                    <p>
+                        Topics ranked from recorded searches.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="analytics-chart-wrap analytics-chart-medium">
+                <canvas id="popularTopicsChart"></canvas>
+            </div>
+
+        </article>
+
+
+        <article class="analytics-chart-card">
+
+            <div class="analytics-chart-head">
+
+                <div>
+
+                    <span class="analytics-chart-kicker">
+                        COLLECTION STATUS
+                    </span>
+
+                    <h2>
+                        Thesis Availability
+                    </h2>
+
+                    <p>
+                        Current active collection status.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="analytics-chart-wrap analytics-chart-medium">
+                <canvas id="availabilityChart"></canvas>
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =====================================================
+         SEARCH DETAILS
+    ====================================================== -->
+
+    <section class="analytics-two-column-grid">
+
+        <article class="analytics-chart-card">
+
+            <div class="analytics-chart-head">
+
+                <div>
+
+                    <span class="analytics-chart-kicker">
+                        SEARCH KEYWORDS
+                    </span>
+
+                    <h2>
+                        Most Searched Words
+                    </h2>
+
+                    <p>
+                        Frequently used search terms in LIBRA.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="analytics-ranking-list">
+
+                {% if most_searched_terms %}
+
+                    {% set maximum_search_count =
+                        most_searched_terms[0].search_count
+                    %}
+
+
+                    {% for item in most_searched_terms %}
+
+                        <div class="analytics-ranking-row">
+
+                            <span class="analytics-ranking-number">
+                                #{{ loop.index }}
+                            </span>
+
+                            <span
+                                class="analytics-ranking-name"
+                                title="{{ item.normalized_query }}"
+                            >
+                                {{ item.normalized_query|title }}
+                            </span>
+
+                            <div class="analytics-ranking-track">
+
+                                <span
+                                    style="
+                                        width:
+                                        {% if maximum_search_count %}
+                                            {{
+                                                (
+                                                    item.search_count
+                                                    /
+                                                    maximum_search_count
+                                                    *
+                                                    100
+                                                )
+                                                |round(2)
+                                            }}%
+                                        {% else %}
+                                            0%
+                                        {% endif %};
+                                    "
+                                ></span>
+
+                            </div>
+
+                            <strong class="analytics-ranking-count">
+                                {{ item.search_count }}
+                            </strong>
+
+                        </div>
+
+                    {% endfor %}
+
+
+                {% else %}
+
+                    <div class="analytics-empty-state">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        <strong>
+                            No search records available
+                        </strong>
+
+                        <span>
+                            Search activity will appear here once users search the collection.
+                        </span>
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </article>
+
+
+        <article class="analytics-chart-card">
+
+            <div class="analytics-chart-head">
+
+                <div>
+
+                    <span class="analytics-chart-kicker">
+                        TOPIC FREQUENCY
+                    </span>
+
+                    <h2>
+                        Most Searched Research Topics
+                    </h2>
+
+                    <p>
+                        Research topics ranked by search frequency.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="analytics-chart-wrap analytics-chart-large">
+                <canvas id="searchedTopicsChart"></canvas>
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =====================================================
+         ACADEMIC LEVEL
+    ====================================================== -->
+
+    <section class="analytics-chart-card analytics-full-width">
+
+        <div class="analytics-chart-head">
+
+            <div>
+
+                <span class="analytics-chart-kicker">
+                    ACADEMIC PROFILE
+                </span>
+
+                <h2>
+                    Search Activity by Academic Level
+                </h2>
+
+                <p>
+                    Search records grouped by academic level.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="analytics-chart-wrap analytics-chart-level">
+            <canvas id="academicLevelChart"></canvas>
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         NOTE
+    ====================================================== -->
+
+    <div class="analytics-note">
+
+        <div class="analytics-note-icon">
+            <i class="fa-solid fa-circle-info"></i>
+        </div>
+
+        <div>
+
+            <strong>
+                Analytics Note
+            </strong>
+
+            <p>
+                LIBRA summarizes recorded searches, borrowing transactions,
+                thesis availability, and research interests. These analytics
+                support the librarian's evaluation and decision-making;
+                the system does not make library decisions automatically.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CHART DATA BRIDGE
+    ====================================================== -->
+
+    <div
+        id="analyticsData"
+        hidden
+        data-monthly-labels='{{ monthly_labels|default([])|tojson|forceescape }}'
+        data-monthly-borrow-values='{{ monthly_borrow_values|default([])|tojson|forceescape }}'
+        data-monthly-search-values='{{ monthly_search_values|default([])|tojson|forceescape }}'
+        data-available-count="{{ available_count|default(0) }}"
+        data-borrowed-count="{{ borrowed_theses_count|default(0) }}"
+    ></div>
+
+
+    <div id="mostBorrowedData" hidden>
+
+        {% for row in most_borrowed_theses %}
+
+            <span
+                data-label="{{ row.title|e }}"
+                data-value="{{ row.borrow_count }}"
+            ></span>
+
+        {% endfor %}
+
+    </div>
+
+
+    <div id="activeProgramsData" hidden>
+
+        {% for row in most_active_programs %}
+
+            <span
+                data-label="{{ row.program_name|e }}"
+                data-value="{{ row.borrow_count }}"
+            ></span>
+
+        {% endfor %}
+
+    </div>
+
+
+    <div id="popularTopicsData" hidden>
+
+        {% for row in popular_topics %}
+
+            <span
+                data-label="{{ row.topic_bucket|e }}"
+                data-value="{{ row.search_count }}"
+            ></span>
+
+        {% endfor %}
+
+    </div>
+
+
+    <div id="academicLevelData" hidden>
+
+        {% for row in search_by_level %}
+
+            <span
+                data-label="{{ row.academic_level|e }}"
+                data-value="{{ row.search_count }}"
+            ></span>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        if (typeof Chart === "undefined") {
+            console.error("Chart.js failed to load.");
+            return;
+        }
+
+
+        /* =====================================================
+           LIBRA CHART THEME
+        ====================================================== */
+
+        const colors = {
+
+            dark:
+                "#0D542F",
+
+            green:
+                "#27AE60",
+
+            green2:
+                "#4FBD79",
+
+            green3:
+                "#82C99B",
+
+            green4:
+                "#B7DEC5",
+
+            gold:
+                "#E7B93E",
+
+            gold2:
+                "#F4D675",
+
+            cream:
+                "#FFF3C8",
+
+            muted:
+                "#789383",
+
+            grid:
+                "rgba(13, 84, 47, 0.09)",
+
+            surface:
+                "#F7FAF8",
+
+            white:
+                "#FFFFFF"
+        };
+
+
+        Chart.defaults.font.family =
+            "Nunito, sans-serif";
+
+        Chart.defaults.color =
+            colors.muted;
+
+        Chart.defaults.borderColor =
+            colors.grid;
+
+
+        const analyticsData =
+            document.getElementById(
+                "analyticsData"
+            );
+
+
+        function parseJsonAttribute(
+            element,
+            attributeName
+        ) {
+
+            if (!element) {
+                return [];
+            }
+
+
+            const rawValue =
+                element.getAttribute(
+                    attributeName
+                );
+
+
+            if (!rawValue) {
+                return [];
+            }
+
+
+            try {
+
+                return JSON.parse(
+                    rawValue
+                );
+
+            } catch (error) {
+
+                console.error(
+                    "Unable to parse analytics data:",
+                    attributeName,
+                    error
+                );
+
+                return [];
+            }
+
+        }
+
+
+        function collectRows(
+            containerId
+        ) {
+
+            const container =
+                document.getElementById(
+                    containerId
+                );
+
+
+            if (!container) {
+
+                return {
+                    labels: [],
+                    values: []
+                };
+            }
+
+
+            const rows =
+                Array.from(
+                    container.querySelectorAll(
+                        "[data-label][data-value]"
+                    )
+                );
+
+
+            return {
+
+                labels:
+                    rows.map(
+                        function (row) {
+                            return (
+                                row.dataset.label ||
+                                ""
+                            );
+                        }
+                    ),
+
+                values:
+                    rows.map(
+                        function (row) {
+                            return Number(
+                                row.dataset.value ||
+                                0
+                            );
+                        }
+                    )
+            };
+
+        }
+
+
+        function getNumericAttribute(
+            element,
+            attributeName
+        ) {
+
+            if (!element) {
+                return 0;
+            }
+
+
+            return Number(
+                element.getAttribute(
+                    attributeName
+                ) || 0
+            );
+
+        }
+
+
+        function shortenLabel(
+            value,
+            maxLength
+        ) {
+
+            if (!value) {
+                return "";
+            }
+
+
+            if (
+                value.length <=
+                maxLength
+            ) {
+                return value;
+            }
+
+
+            return (
+                value.substring(
+                    0,
+                    maxLength - 1
+                ) +
+                "…"
+            );
+
+        }
+
+
+        const monthlyLabels =
+            parseJsonAttribute(
+                analyticsData,
+                "data-monthly-labels"
+            );
+
+
+        const monthlyBorrowValues =
+            parseJsonAttribute(
+                analyticsData,
+                "data-monthly-borrow-values"
+            );
+
+
+        const monthlySearchValues =
+            parseJsonAttribute(
+                analyticsData,
+                "data-monthly-search-values"
+            );
+
+
+        const availableCount =
+            getNumericAttribute(
+                analyticsData,
+                "data-available-count"
+            );
+
+
+        const borrowedCount =
+            getNumericAttribute(
+                analyticsData,
+                "data-borrowed-count"
+            );
+
+
+        const mostBorrowed =
+            collectRows(
+                "mostBorrowedData"
+            );
+
+
+        const activePrograms =
+            collectRows(
+                "activeProgramsData"
+            );
+
+
+        const popularTopics =
+            collectRows(
+                "popularTopicsData"
+            );
+
+
+        const academicLevels =
+            collectRows(
+                "academicLevelData"
+            );
+
+
+        /* =====================================================
+           COMMON OPTIONS
+        ====================================================== */
+
+        const commonScaleOptions = {
+
+            beginAtZero: true,
+
+            ticks: {
+
+                precision: 0,
+
+                color:
+                    colors.muted,
+
+                font: {
+                    size: 11,
+                    weight: "700"
+                }
+
+            },
+
+            grid: {
+
+                color:
+                    colors.grid,
+
+                drawBorder:
+                    false
+
+            },
+
+            border: {
+                display: false
+            }
+
+        };
+
+
+        const commonTooltip = {
+
+            backgroundColor:
+                colors.dark,
+
+            titleColor:
+                colors.white,
+
+            bodyColor:
+                "#ECF8F0",
+
+            padding:
+                11,
+
+            cornerRadius:
+                9,
+
+            displayColors:
+                true,
+
+            boxPadding:
+                4
+
+        };
+
+
+        /* =====================================================
+           MONTHLY TREND
+        ====================================================== */
+
+        const monthlyTrendCanvas =
+            document.getElementById(
+                "monthlyTrendChart"
+            );
+
+
+        if (monthlyTrendCanvas) {
+
+            new Chart(
+                monthlyTrendCanvas,
+                {
+
+                    type:
+                        "line",
+
+                    data: {
+
+                        labels:
+                            monthlyLabels,
+
+                        datasets: [
+
+                            {
+
+                                label:
+                                    "Borrowings",
+
+                                data:
+                                    monthlyBorrowValues,
+
+                                borderColor:
+                                    colors.dark,
+
+                                backgroundColor:
+                                    "rgba(13, 84, 47, 0.09)",
+
+                                pointBackgroundColor:
+                                    colors.dark,
+
+                                pointBorderColor:
+                                    colors.white,
+
+                                pointBorderWidth:
+                                    2,
+
+                                pointRadius:
+                                    4,
+
+                                pointHoverRadius:
+                                    6,
+
+                                borderWidth:
+                                    3,
+
+                                tension:
+                                    0.35,
+
+                                fill:
+                                    true
+
+                            },
+
+                            {
+
+                                label:
+                                    "Searches",
+
+                                data:
+                                    monthlySearchValues,
+
+                                borderColor:
+                                    colors.gold,
+
+                                backgroundColor:
+                                    "rgba(231, 185, 62, 0.08)",
+
+                                pointBackgroundColor:
+                                    colors.gold,
+
+                                pointBorderColor:
+                                    colors.white,
+
+                                pointBorderWidth:
+                                    2,
+
+                                pointRadius:
+                                    4,
+
+                                pointHoverRadius:
+                                    6,
+
+                                borderWidth:
+                                    3,
+
+                                tension:
+                                    0.35,
+
+                                fill:
+                                    false
+
+                            }
+
+                        ]
+
+                    },
+
+                    options: {
+
+                        responsive:
+                            true,
+
+                        maintainAspectRatio:
+                            false,
+
+                        interaction: {
+
+                            mode:
+                                "index",
+
+                            intersect:
+                                false
+
+                        },
+
+                        plugins: {
+
+                            tooltip:
+                                commonTooltip,
+
+                            legend: {
+
+                                position:
+                                    "top",
+
+                                align:
+                                    "end",
+
+                                labels: {
+
+                                    usePointStyle:
+                                        true,
+
+                                    pointStyle:
+                                        "circle",
+
+                                    boxWidth:
+                                        8,
+
+                                    padding:
+                                        16,
+
+                                    color:
+                                        colors.dark,
+
+                                    font: {
+                                        size: 11,
+                                        weight: "800"
+                                    }
+
+                                }
+
+                            }
+
+                        },
+
+                        scales: {
+
+                            x: {
+
+                                ticks: {
+
+                                    color:
+                                        colors.muted,
+
+                                    font: {
+                                        size: 10,
+                                        weight: "700"
+                                    }
+
+                                },
+
+                                grid: {
+                                    display: false
+                                },
+
+                                border: {
+                                    display: false
+                                }
+
+                            },
+
+                            y:
+                                commonScaleOptions
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           MOST BORROWED THESIS
+        ====================================================== */
+
+        const mostBorrowedCanvas =
+            document.getElementById(
+                "mostBorrowedChart"
+            );
+
+
+        if (mostBorrowedCanvas) {
+
+            new Chart(
+                mostBorrowedCanvas,
+                {
+
+                    type:
+                        "bar",
+
+                    data: {
+
+                        labels:
+                            mostBorrowed.labels,
+
+                        datasets: [
+
+                            {
+
+                                label:
+                                    "Borrowings",
+
+                                data:
+                                    mostBorrowed.values,
+
+                                backgroundColor:
+                                    colors.green,
+
+                                hoverBackgroundColor:
+                                    colors.dark,
+
+                                borderRadius:
+                                    8,
+
+                                borderSkipped:
+                                    false,
+
+                                barThickness:
+                                    22
+
+                            }
+
+                        ]
+
+                    },
+
+                    options: {
+
+                        indexAxis:
+                            "y",
+
+                        responsive:
+                            true,
+
+                        maintainAspectRatio:
+                            false,
+
+                        plugins: {
+
+                            tooltip: {
+                                ...commonTooltip,
+                                callbacks: {
+                                    title: function (items) {
+                                        return mostBorrowed.labels[
+                                            items[0].dataIndex
+                                        ] || "";
+                                    }
+                                }
+                            },
+
+                            legend: {
+                                display: false
+                            }
+
+                        },
+
+                        scales: {
+
+                            x:
+                                commonScaleOptions,
+
+                            y: {
+
+                                grid: {
+                                    display: false
+                                },
+
+                                border: {
+                                    display: false
+                                },
+
+                                ticks: {
+
+                                    color:
+                                        colors.muted,
+
+                                    font: {
+                                        size: 10,
+                                        weight: "700"
+                                    },
+
+                                    callback:
+                                        function (
+                                            value,
+                                            index
+                                        ) {
+
+                                            return shortenLabel(
+                                                mostBorrowed.labels[
+                                                    index
+                                                ],
+                                                36
+                                            );
+                                        }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           MOST ACTIVE PROGRAMS
+        ====================================================== */
+
+        const activeProgramsCanvas =
+            document.getElementById(
+                "activeProgramsChart"
+            );
+
+
+        if (activeProgramsCanvas) {
+
+            new Chart(
+                activeProgramsCanvas,
+                {
+
+                    type:
+                        "bar",
+
+                    data: {
+
+                        labels:
+                            activePrograms.labels,
+
+                        datasets: [
+
+                            {
+
+                                label:
+                                    "Borrowings",
+
+                                data:
+                                    activePrograms.values,
+
+                                backgroundColor: [
+                                    colors.dark,
+                                    colors.green,
+                                    colors.green2,
+                                    colors.green3,
+                                    colors.green4,
+                                    colors.gold2
+                                ],
+
+                                borderRadius:
+                                    7,
+
+                                borderSkipped:
+                                    false,
+
+                                barThickness:
+                                    20
+
+                            }
+
+                        ]
+
+                    },
+
+                    options: {
+
+                        indexAxis:
+                            "y",
+
+                        responsive:
+                            true,
+
+                        maintainAspectRatio:
+                            false,
+
+                        plugins: {
+
+                            tooltip: {
+                                ...commonTooltip,
+                                callbacks: {
+                                    title: function (items) {
+                                        return activePrograms.labels[
+                                            items[0].dataIndex
+                                        ] || "";
+                                    }
+                                }
+                            },
+
+                            legend: {
+                                display: false
+                            }
+
+                        },
+
+                        scales: {
+
+                            x:
+                                commonScaleOptions,
+
+                            y: {
+
+                                grid: {
+                                    display: false
+                                },
+
+                                border: {
+                                    display: false
+                                },
+
+                                ticks: {
+
+                                    color:
+                                        colors.muted,
+
+                                    font: {
+                                        size: 10,
+                                        weight: "700"
+                                    },
+
+                                    callback:
+                                        function (
+                                            value,
+                                            index
+                                        ) {
+
+                                            return shortenLabel(
+                                                activePrograms.labels[
+                                                    index
+                                                ],
+                                                28
+                                            );
+                                        }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           POPULAR TOPICS
+        ====================================================== */
+
+        const popularTopicsCanvas =
+            document.getElementById(
+                "popularTopicsChart"
+            );
+
+
+        if (popularTopicsCanvas) {
+
+            new Chart(
+                popularTopicsCanvas,
+                {
+
+                    type:
+                        "doughnut",
+
+                    data: {
+
+                        labels:
+                            popularTopics.labels,
+
+                        datasets: [
+
+                            {
+
+                                data:
+                                    popularTopics.values,
+
+                                backgroundColor: [
+                                    colors.dark,
+                                    colors.green,
+                                    colors.green2,
+                                    colors.green3,
+                                    colors.gold,
+                                    colors.gold2,
+                                    "#A9C9B5",
+                                    "#DCE9E1"
+                                ],
+
+                                borderColor:
+                                    colors.white,
+
+                                borderWidth:
+                                    3,
+
+                                hoverOffset:
+                                    6
+
+                            }
+
+                        ]
+
+                    },
+
+                    options: {
+
+                        responsive:
+                            true,
+
+                        maintainAspectRatio:
+                            false,
+
+                        cutout:
+                            "58%",
+
+                        plugins: {
+
+                            tooltip:
+                                commonTooltip,
+
+                            legend: {
+
+                                position:
+                                    "bottom",
+
+                                labels: {
+
+                                    usePointStyle:
+                                        true,
+
+                                    pointStyle:
+                                        "circle",
+
+                                    boxWidth:
+                                        8,
+
+                                    padding:
+                                        11,
+
+                                    color:
+                                        colors.muted,
+
+                                    font: {
+                                        size: 10,
+                                        weight: "700"
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           THESIS AVAILABILITY
+        ====================================================== */
+
+        const availabilityCanvas =
+            document.getElementById(
+                "availabilityChart"
+            );
+
+
+        if (availabilityCanvas) {
+
+            new Chart(
+                availabilityCanvas,
+                {
+
+                    type:
+                        "doughnut",
+
+                    data: {
+
+                        labels: [
+                            "Available",
+                            "Borrowed"
+                        ],
+
+                        datasets: [
+
+                            {
+
+                                data: [
+                                    availableCount,
+                                    borrowedCount
+                                ],
+
+                                backgroundColor: [
+                                    colors.green,
+                                    colors.gold
+                                ],
+
+                                borderColor:
+                                    colors.white,
+
+                                borderWidth:
+                                    3,
+
+                                hoverOffset:
+                                    6
+
+                            }
+
+                        ]
+
+                    },
+
+                    options: {
+
+                        responsive:
+                            true,
+
+                        maintainAspectRatio:
+                            false,
+
+                        cutout:
+                            "72%",
+
+                        plugins: {
+
+                            tooltip:
+                                commonTooltip,
+
+                            legend: {
+
+                                position:
+                                    "bottom",
+
+                                labels: {
+
+                                    usePointStyle:
+                                        true,
+
+                                    pointStyle:
+                                        "circle",
+
+                                    boxWidth:
+                                        8,
+
+                                    padding:
+                                        14,
+
+                                    color:
+                                        colors.muted,
+
+                                    font: {
+                                        size: 10,
+                                        weight: "700"
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           MOST SEARCHED TOPICS
+        ====================================================== */
+
+        const searchedTopicsCanvas =
+            document.getElementById(
+                "searchedTopicsChart"
+            );
+
+
+        if (searchedTopicsCanvas) {
+
+            new Chart(
+                searchedTopicsCanvas,
+                {
+
+                    type:
+                        "bar",
+
+                    data: {
+
+                        labels:
+                            popularTopics.labels,
+
+                        datasets: [
+
+                            {
+
+                                label:
+                                    "Searches",
+
+                                data:
+                                    popularTopics.values,
+
+                                backgroundColor:
+                                    colors.green2,
+
+                                hoverBackgroundColor:
+                                    colors.dark,
+
+                                borderRadius:
+                                    7,
+
+                                borderSkipped:
+                                    false
+
+                            }
+
+                        ]
+
+                    },
+
+                    options: {
+
+                        responsive:
+                            true,
+
+                        maintainAspectRatio:
+                            false,
+
+                        plugins: {
+
+                            tooltip:
+                                commonTooltip,
+
+                            legend: {
+                                display: false
+                            }
+
+                        },
+
+                        scales: {
+
+                            x: {
+
+                                grid: {
+                                    display: false
+                                },
+
+                                border: {
+                                    display: false
+                                },
+
+                                ticks: {
+
+                                    color:
+                                        colors.muted,
+
+                                    maxRotation:
+                                        32,
+
+                                    minRotation:
+                                        18,
+
+                                    font: {
+                                        size: 10,
+                                        weight: "700"
+                                    }
+
+                                }
+
+                            },
+
+                            y:
+                                commonScaleOptions
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           SEARCH BY ACADEMIC LEVEL
+        ====================================================== */
+
+        const academicLevelCanvas =
+            document.getElementById(
+                "academicLevelChart"
+            );
+
+
+        if (academicLevelCanvas) {
+
+            new Chart(
+                academicLevelCanvas,
+                {
+
+                    type:
+                        "bar",
+
+                    data: {
+
+                        labels:
+                            academicLevels.labels,
+
+                        datasets: [
+
+                            {
+
+                                label:
+                                    "Searches",
+
+                                data:
+                                    academicLevels.values,
+
+                                backgroundColor: [
+                                    colors.dark,
+                                    colors.green,
+                                    colors.gold
+                                ],
+
+                                borderRadius:
+                                    10,
+
+                                borderSkipped:
+                                    false,
+
+                                maxBarThickness:
+                                    95
+
+                            }
+
+                        ]
+
+                    },
+
+                    options: {
+
+                        responsive:
+                            true,
+
+                        maintainAspectRatio:
+                            false,
+
+                        plugins: {
+
+                            tooltip:
+                                commonTooltip,
+
+                            legend: {
+                                display: false
+                            }
+
+                        },
+
+                        scales: {
+
+                            x: {
+
+                                grid: {
+                                    display: false
+                                },
+
+                                border: {
+                                    display: false
+                                },
+
+                                ticks: {
+
+                                    color:
+                                        colors.muted,
+
+                                    font: {
+                                        size: 11,
+                                        weight: "800"
+                                    }
+
+                                }
+
+                            },
+
+                            y:
+                                commonScaleOptions
+
+                        }
+
+                    }
+
+                }
+            );
+
+        }
+
+    }
+);
+
+</script>
+
+{% endblock %}

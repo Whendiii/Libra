@@ -1,0 +1,45 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+from config import Config
+
+
+db = SQLAlchemy()
+
+
+def create_app():
+
+    app = Flask(__name__)
+
+    app.config.from_object(
+        Config
+    )
+
+    db.init_app(
+        app
+    )
+
+
+    # ========================================================
+    # PUBLIC / MAIN BLUEPRINT
+    # ========================================================
+
+    from app.main import bp as main_bp
+
+    app.register_blueprint(
+        main_bp
+    )
+
+
+    # ========================================================
+    # ADMIN BLUEPRINT
+    # ========================================================
+
+    from app.admin import bp as admin_bp
+
+    app.register_blueprint(
+        admin_bp
+    )
+
+
+    return app

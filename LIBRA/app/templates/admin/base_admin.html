@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+        LIBRA Admin
+        {% endblock %}
+    </title>
+
+
+    <!-- =====================================================
+         GOOGLE FONT
+    ====================================================== -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- =====================================================
+         FONT AWESOME
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    >
+
+
+    <!-- =====================================================
+         LIBRA CSS
+    ====================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='css/style.css') }}"
+    >
+
+
+    {% block head %}
+    {% endblock %}
+
+</head>
+
+
+<body class="admin-body">
+
+
+<!-- =========================================================
+     ADMIN SIDEBAR
+========================================================= -->
+
+<aside class="admin-sidebar">
+
+
+    <!-- =====================================================
+         LIBRA BRAND
+    ====================================================== -->
+
+    <div class="admin-brand">
+
+        <div class="admin-brand-logo-box">
+
+            <img
+                src="{{ url_for('static', filename='img/libra_logo.png') }}"
+                alt="LIBRA Logo"
+                class="admin-brand-logo"
+            >
+
+        </div>
+
+
+        <div class="admin-brand-copy">
+
+            <strong>
+                LIBRA
+            </strong>
+
+            <span>
+                Administrator
+            </span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         ADMIN NAVIGATION
+    ====================================================== -->
+
+    <nav class="admin-menu">
+
+
+        <!-- DASHBOARD -->
+
+        <a
+            href="{{ url_for('admin.dashboard') }}"
+            class="
+                admin-menu-link
+
+                {% if request.endpoint == 'admin.dashboard' %}
+                    active
+                {% endif %}
+            "
+        >
+
+            <i class="fa-solid fa-border-all"></i>
+
+            <span>
+                Dashboard
+            </span>
+
+        </a>
+
+
+
+        <!-- THESIS MANAGEMENT -->
+
+        <a
+            href="{{ url_for('admin.thesis_management') }}"
+            class="
+                admin-menu-link
+
+                {% if request.endpoint in [
+                    'admin.thesis_management',
+                    'admin.add_thesis',
+                    'admin.edit_thesis'
+                ] %}
+                    active
+                {% endif %}
+            "
+        >
+
+            <i class="fa-solid fa-book"></i>
+
+            <span>
+                Thesis Management
+            </span>
+
+        </a>
+
+
+
+        <!-- BORROWING REQUESTS -->
+
+        <a
+            href="{{ url_for('admin.borrowing_requests') }}"
+            class="
+                admin-menu-link
+
+                {% if request.endpoint in [
+                    'admin.borrowing_requests',
+                    'admin.borrowing_request_details',
+                    'admin.borrowing_slip'
+                ] %}
+                    active
+                {% endif %}
+            "
+        >
+
+            <i class="fa-solid fa-file-circle-check"></i>
+
+            <span>
+                Borrowing Requests
+            </span>
+
+
+            {% if requested_count is defined and requested_count > 0 %}
+
+                <span class="admin-request-badge">
+
+                    {{ requested_count }}
+
+                </span>
+
+            {% endif %}
+
+        </a>
+
+
+
+        <!-- TRANSACTIONS -->
+
+        <a
+            href="{{ url_for('admin.transactions') }}"
+            class="
+                admin-menu-link
+
+                {% if request.endpoint == 'admin.transactions' %}
+                    active
+                {% endif %}
+            "
+        >
+
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+
+            <span>
+                Transactions
+            </span>
+
+        </a>
+
+
+
+        <!-- LIBRARY ANALYTICS -->
+
+        <a
+            href="{{ url_for('admin.analytics') }}"
+            class="
+                admin-menu-link
+
+                {% if request.endpoint == 'admin.analytics' %}
+                    active
+                {% endif %}
+            "
+        >
+
+            <i class="fa-solid fa-chart-column"></i>
+
+            <span>
+                Library Analytics
+            </span>
+
+        </a>
+
+
+    </nav>
+
+
+
+    <!-- =====================================================
+         SIDEBAR BOTTOM ACCOUNT
+    ====================================================== -->
+
+    <div class="admin-sidebar-bottom">
+
+
+        <div class="admin-account">
+
+
+            <div class="admin-librarian-logo">
+
+                <img
+                    src="{{ url_for('static', filename='img/isu_logo.png') }}"
+                    alt="ISU Logo"
+                    class="admin-librarian-logo-img"
+                >
+
+            </div>
+
+
+            <div class="admin-account-copy">
+
+                <strong>
+                    Librarian
+                </strong>
+
+                <span>
+                    Administrator
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- LOGOUT -->
+
+        <a
+            href="{{ url_for('admin.logout') }}"
+            class="admin-logout-link"
+        >
+
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+
+            <span>
+                Logout
+            </span>
+
+        </a>
+
+
+    </div>
+
+
+</aside>
+
+
+
+<!-- =========================================================
+     ADMIN MAIN AREA
+========================================================= -->
+
+<div class="admin-main">
+
+
+    <!-- =====================================================
+         ADMIN TOP BAR
+    ====================================================== -->
+
+    <header class="admin-topbar">
+
+
+        <!-- LEFT SIDE -->
+
+        <div class="admin-topbar-school">
+
+            <img
+                src="{{ url_for('static', filename='img/isu_logo.png') }}"
+                alt="Isabela State University Logo"
+                class="admin-topbar-school-logo"
+            >
+
+
+            <div class="admin-topbar-school-text">
+
+                <strong>
+                    Isabela State University
+                </strong>
+
+                <span>
+                    Echague Campus Library
+                </span>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- RIGHT SIDE
+             IMPORTANT:
+             THIS IS THE ONLY VIEW PUBLIC SITE BUTTON
+        -->
+
+        <a
+            href="{{ url_for('main.home') }}"
+            class="admin-view-public"
+            target="_blank"
+        >
+
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+
+            <span>
+                View Public Site
+            </span>
+
+        </a>
+
+
+    </header>
+
+
+
+    <!-- =====================================================
+         ADMIN PAGE CONTENT
+    ====================================================== -->
+
+    <main class="admin-content">
+
+
+        <!-- =================================================
+             GLOBAL FLASH MESSAGES
+        ================================================== -->
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+
+                <div class="admin-global-flashes">
+
+
+                    {% for category, message in messages %}
+
+
+                        <div
+                            class="
+                                admin-global-flash
+                                {{ category }}
+                            "
+                        >
+
+
+                            {% if category == "success" %}
+
+                                <i class="fa-solid fa-circle-check"></i>
+
+
+                            {% elif category == "error" %}
+
+                                <i class="fa-solid fa-circle-exclamation"></i>
+
+
+                            {% else %}
+
+                                <i class="fa-solid fa-circle-info"></i>
+
+                            {% endif %}
+
+
+                            <span>
+                                {{ message }}
+                            </span>
+
+
+                        </div>
+
+
+                    {% endfor %}
+
+
+                </div>
+
+
+            {% endif %}
+
+        {% endwith %}
+
+
+
+        <!-- =================================================
+             CHILD PAGE CONTENT
+        ================================================== -->
+
+        {% block content %}
+        {% endblock %}
+
+
+    </main>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     PAGE SCRIPTS
+========================================================= -->
+
+{% block scripts %}
+{% endblock %}
+
+
+</body>
+
+</html>

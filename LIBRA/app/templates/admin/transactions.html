@@ -1,0 +1,661 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}
+Transactions | LIBRA
+{% endblock %}
+
+{% block content %}
+
+<div class="transactions-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
+    <header class="transactions-header">
+
+        <div>
+
+            <span class="transactions-eyebrow">
+                BORROWING MANAGEMENT
+            </span>
+
+            <h1>
+                Transactions
+            </h1>
+
+            <p>
+                Monitor active and completed thesis borrowing transactions across LIBRA.
+            </p>
+
+        </div>
+
+        <div class="transactions-header-badge">
+
+            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+
+            <div>
+                <span>Transaction Records</span>
+                <strong>{{ total_transactions }}</strong>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         SUMMARY CARDS
+    ====================================================== -->
+
+    <section class="transactions-summary-grid">
+
+        <article class="transactions-summary-card">
+
+            <div class="transactions-summary-icon total">
+                <i class="fa-solid fa-list-check"></i>
+            </div>
+
+            <div>
+
+                <span>
+                    Total Transactions
+                </span>
+
+                <strong>
+                    {{ total_transactions }}
+                </strong>
+
+                <small>
+                    All borrowing records
+                </small>
+
+            </div>
+
+        </article>
+
+
+        <article class="transactions-summary-card">
+
+            <div class="transactions-summary-icon active">
+                <i class="fa-solid fa-book-open-reader"></i>
+            </div>
+
+            <div>
+
+                <span>
+                    Active Borrowings
+                </span>
+
+                <strong>
+                    {{ active_count }}
+                </strong>
+
+                <small>
+                    Thesis currently borrowed
+                </small>
+
+            </div>
+
+        </article>
+
+
+        <article class="transactions-summary-card">
+
+            <div class="transactions-summary-icon returned">
+                <i class="fa-solid fa-arrow-rotate-left"></i>
+            </div>
+
+            <div>
+
+                <span>
+                    Returned
+                </span>
+
+                <strong>
+                    {{ returned_count }}
+                </strong>
+
+                <small>
+                    Completed transactions
+                </small>
+
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =====================================================
+         SEARCH + FILTER
+    ====================================================== -->
+
+    <section class="transactions-filter-card">
+
+        <div class="transactions-filter-heading">
+
+            <div class="transactions-filter-icon">
+                <i class="fa-solid fa-sliders"></i>
+            </div>
+
+            <div>
+                <strong>
+                    Search & Filter
+                </strong>
+
+                <span>
+                    Find transactions by ID, borrower, request, thesis, or status.
+                </span>
+            </div>
+
+        </div>
+
+
+        <form
+            method="GET"
+            action="{{ url_for('admin.transactions') }}"
+            class="transactions-filter-form"
+        >
+
+            <div class="transactions-search-field">
+
+                <label for="transactionSearch">
+                    Search
+                </label>
+
+                <div class="transactions-search-shell">
+
+                    <i class="fa-solid fa-magnifying-glass"></i>
+
+                    <input
+                        id="transactionSearch"
+                        type="text"
+                        name="q"
+                        value="{{ search_text }}"
+                        placeholder="Search transaction ID, borrower, request ID, or thesis..."
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="transactions-status-field">
+
+                <label for="transactionStatus">
+                    Status
+                </label>
+
+                <div class="transactions-select-shell">
+
+                    <i class="fa-solid fa-filter"></i>
+
+                    <select
+                        id="transactionStatus"
+                        name="status"
+                    >
+
+                        <option value="">
+                            All Transactions
+                        </option>
+
+                        <option
+                            value="Borrowed"
+                            {% if selected_status == "Borrowed" %}
+                                selected
+                            {% endif %}
+                        >
+                            Borrowed
+                        </option>
+
+                        <option
+                            value="Returned"
+                            {% if selected_status == "Returned" %}
+                                selected
+                            {% endif %}
+                        >
+                            Returned
+                        </option>
+
+                    </select>
+
+                    <i class="fa-solid fa-chevron-down"></i>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="transactions-apply-button"
+            >
+                <i class="fa-solid fa-check"></i>
+                Apply Filter
+            </button>
+
+
+            <a
+                href="{{ url_for('admin.transactions') }}"
+                class="transactions-clear-button"
+            >
+                <i class="fa-solid fa-rotate-left"></i>
+                Clear
+            </a>
+
+        </form>
+
+    </section>
+
+
+    <!-- =====================================================
+         TABLE HEADING
+    ====================================================== -->
+
+    <div class="transactions-records-heading">
+
+        <div>
+
+            <span class="transactions-section-label">
+                TRANSACTION RECORDS
+            </span>
+
+            <h2>
+                Borrowing History
+            </h2>
+
+            <p>
+                Showing
+                <strong>{{ transactions_list|length }}</strong>
+                record{% if transactions_list|length != 1 %}s{% endif %}
+                {% if selected_status %}
+                    with status <strong>{{ selected_status }}</strong>
+                {% endif %}.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         TRANSACTIONS TABLE
+    ====================================================== -->
+
+    <section class="transactions-table-card">
+
+        <div class="transactions-table-wrap">
+
+            <table class="transactions-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Transaction
+                        </th>
+
+                        <th>
+                            Borrower
+                        </th>
+
+                        <th>
+                            Research Material
+                        </th>
+
+                        <th>
+                            Borrowed At
+                        </th>
+
+                        <th>
+                            Expected Return
+                        </th>
+
+                        <th>
+                            Returned At
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th class="transactions-action-heading">
+                            Action
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for item in transactions_list %}
+
+                        <tr>
+
+
+                            <!-- TRANSACTION -->
+
+                            <td>
+
+                                <div class="transactions-id-cell">
+
+                                    <strong>
+                                        {{ item.transaction_id }}
+                                    </strong>
+
+                                    <span>
+                                        <i class="fa-regular fa-file-lines"></i>
+                                        {{ item.borrowing_request.request_id }}
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- BORROWER -->
+
+                            <td>
+
+                                <div class="transactions-borrower-cell">
+
+                                    <div class="transactions-borrower-avatar">
+
+                                        {% if item.borrowing_request.user_type == "Faculty" %}
+                                            <i class="fa-solid fa-user-tie"></i>
+                                        {% else %}
+                                            <i class="fa-solid fa-user-graduate"></i>
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <div>
+
+                                        <strong>
+                                            {{ item.borrowing_request.full_name }}
+                                        </strong>
+
+                                        <span>
+                                            {{ item.borrowing_request.user_type }}
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- THESIS -->
+
+                            <td>
+
+                                <div class="transactions-thesis-cell">
+
+                                    <strong>
+                                        {{ item.borrowing_request.thesis.title }}
+                                    </strong>
+
+                                    <span>
+                                        <i class="fa-solid fa-barcode"></i>
+                                        {{ item.borrowing_request.thesis.thesis_code }}
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+
+                            <!-- BORROWED AT -->
+
+                            <td>
+
+                                {% if item.date_time_borrowed %}
+
+                                    <div class="transactions-date-cell">
+
+                                        <strong>
+                                            {{ item.date_time_borrowed.strftime('%b %d, %Y') }}
+                                        </strong>
+
+                                        <span>
+                                            <i class="fa-regular fa-clock"></i>
+                                            {{ item.date_time_borrowed.strftime('%I:%M %p') }}
+                                        </span>
+
+                                    </div>
+
+                                {% else %}
+
+                                    <span class="transactions-muted">
+                                        —
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- EXPECTED RETURN -->
+
+                            <td>
+
+                                {% if item.expected_return_time %}
+
+                                    <div class="transactions-date-cell">
+
+                                        <strong>
+                                            {{ item.expected_return_time.strftime('%b %d, %Y') }}
+                                        </strong>
+
+                                        <span>
+                                            <i class="fa-regular fa-clock"></i>
+                                            {{ item.expected_return_time.strftime('%I:%M %p') }}
+                                        </span>
+
+                                    </div>
+
+                                {% else %}
+
+                                    <span class="transactions-muted">
+                                        —
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- RETURNED AT -->
+
+                            <td>
+
+                                {% if item.actual_return_time %}
+
+                                    <div class="transactions-date-cell returned">
+
+                                        <strong>
+                                            {{ item.actual_return_time.strftime('%b %d, %Y') }}
+                                        </strong>
+
+                                        <span>
+                                            <i class="fa-solid fa-circle-check"></i>
+                                            {{ item.actual_return_time.strftime('%I:%M %p') }}
+                                        </span>
+
+                                    </div>
+
+                                {% else %}
+
+                                    <span class="transactions-not-returned">
+                                        Not yet returned
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- STATUS -->
+
+                            <td>
+
+                                <span class="
+                                    transactions-status-pill
+                                    {{ item.status|lower }}
+                                ">
+
+                                    <span class="transactions-status-dot"></span>
+
+                                    {{ item.status }}
+
+                                </span>
+
+                            </td>
+
+
+                            <!-- ACTION -->
+
+                            <td class="transactions-action-cell">
+
+                                {% if item.status == "Borrowed" %}
+
+                                    <form
+                                        method="POST"
+                                        action="{{ url_for(
+                                            'admin.mark_as_returned',
+                                            transaction_id=item.id
+                                        ) }}"
+                                        class="mark-returned-form"
+                                    >
+
+                                        <button
+                                            type="submit"
+                                            class="transactions-return-button"
+                                        >
+
+                                            <i class="fa-solid fa-arrow-rotate-left"></i>
+
+                                            Mark Returned
+
+                                        </button>
+
+                                    </form>
+
+
+                                {% elif item.status == "Returned" %}
+
+                                    <span class="transactions-completed">
+
+                                        <i class="fa-solid fa-circle-check"></i>
+
+                                        Completed
+
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                        </tr>
+
+
+                    {% else %}
+
+
+                        <tr>
+
+                            <td
+                                colspan="8"
+                                class="transactions-empty-cell"
+                            >
+
+                                <div class="transactions-empty-state">
+
+                                    <div class="transactions-empty-icon">
+
+                                        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+
+                                    </div>
+
+                                    <strong>
+                                        No transaction records found
+                                    </strong>
+
+                                    <span>
+                                        Try changing your search or status filter.
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<!-- =========================================================
+     RETURN CONFIRMATION
+========================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const forms =
+            document.querySelectorAll(
+                ".mark-returned-form"
+            );
+
+
+        forms.forEach(
+            function (form) {
+
+                form.addEventListener(
+                    "submit",
+                    function (event) {
+
+                        const confirmed =
+                            confirm(
+                                "Mark this thesis as Returned?\n\n" +
+                                "Only continue if the physical thesis " +
+                                "has already been returned to the library."
+                            );
+
+
+                        if (!confirmed) {
+                            event.preventDefault();
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}

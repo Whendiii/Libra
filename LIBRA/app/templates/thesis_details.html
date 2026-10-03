@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+{{ thesis.title }} | LIBRA
+{% endblock %}
+
+
+{% block content %}
+
+<section class="thesis-details-page">
+
+
+    <div class="thesis-details-wrapper">
+
+
+        <!-- BACK -->
+
+        <a
+            href="javascript:history.back()"
+            class="details-back-link"
+        >
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Results
+        </a>
+
+
+        <div class="details-layout">
+
+
+            <!-- =================================================
+                 MAIN DETAILS
+            ================================================== -->
+
+            <article class="thesis-main-card">
+
+
+                <div class="details-badge-row">
+
+
+                    <div class="details-left-badges">
+
+                        <span class="details-soft-badge">
+                            {{ thesis.year_published }}
+                        </span>
+
+                        <span class="details-dot">
+                            ·
+                        </span>
+
+                        <span class="details-soft-badge">
+                            {{ thesis.program.academic_level.academic_level }}
+                        </span>
+
+
+                        {% if thesis.research_field %}
+
+                            <span class="details-topic-badge">
+                                {{ thesis.research_field }}
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <span
+                        class="
+                            details-status-badge
+                            {% if thesis.availability == 'Available' %}
+                            available
+                            {% else %}
+                            borrowed
+                            {% endif %}
+                        "
+                    >
+                        {{ thesis.availability }}
+                    </span>
+
+                </div>
+
+
+                <!-- TITLE -->
+
+                <h1 class="details-title">
+                    {{ thesis.title }}
+                </h1>
+
+
+                <!-- INFORMATION GRID -->
+
+                <div class="details-info-grid">
+
+
+                    <div class="details-info-item">
+
+                        <span class="details-label">
+                            Author / Researchers
+                        </span>
+
+                        <strong>
+                            {{ thesis.author_researchers }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="details-info-item">
+
+                        <span class="details-label">
+                            Course / Program
+                        </span>
+
+                        <strong>
+                            {{ thesis.program.program_name }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="details-info-item">
+
+                        <span class="details-label">
+                            Department / College
+                        </span>
+
+                        <strong>
+                            {{ thesis.program.department.department_college }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="details-info-item">
+
+                        <span class="details-label">
+                            Year Published
+                        </span>
+
+                        <strong>
+                            {{ thesis.year_published }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="details-info-item">
+
+                        <span class="details-label">
+                            Research Field
+                        </span>
+
+                        <strong>
+                            {{ thesis.research_field }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="details-info-item">
+
+                        <span class="details-label">
+                            Research Topic
+                        </span>
+
+                        <strong>
+                            {{ thesis.research_topic }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="details-info-item">
+
+                        <span class="details-label">
+                            Shelf / Location
+                        </span>
+
+                        <strong>
+                            {{ thesis.shelf_location }}
+                        </strong>
+
+                    </div>
+
+
+                    {% if thesis.research_subtopic %}
+
+                        <div class="details-info-item">
+
+                            <span class="details-label">
+                                Research Subtopic
+                            </span>
+
+                            <strong>
+                                {{ thesis.research_subtopic }}
+                            </strong>
+
+                        </div>
+
+                    {% endif %}
+
+
+                </div>
+
+
+
+                <!-- KEYWORDS -->
+
+                <div class="details-section">
+
+                    <span class="details-label">
+                        Keywords
+                    </span>
+
+                    <div class="details-keyword-row">
+
+                        {% if thesis.keywords %}
+
+                            {% for keyword in thesis.keywords.split(',') %}
+
+                                {% if keyword.strip() %}
+
+                                    <span>
+                                        {{ keyword.strip() }}
+                                    </span>
+
+                                {% endif %}
+
+                            {% endfor %}
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ABSTRACT -->
+
+                <div class="details-section">
+
+                    <span class="details-label">
+                        Abstract
+                    </span>
+
+                    <p class="details-abstract">
+                        {{ thesis.abstract }}
+                    </p>
+
+                </div>
+
+
+
+                <!-- BORROW ACTION -->
+
+                <div class="details-action-area">
+
+
+                    {% if thesis.availability == "Available" %}
+
+                        <a
+                            href="{{ url_for(
+                                'main.borrow_request',
+                                thesis_id=thesis.id
+                            ) }}"
+                            class="request-borrow-button"
+                        >
+                            Request to Borrow
+                        </a>
+
+                    {% else %}
+
+                        <button
+                            class="request-borrow-button disabled"
+                            disabled
+                        >
+                            Currently Borrowed
+                        </button>
+
+                    {% endif %}
+
+
+                </div>
+
+
+            </article>
+
+
+
+            <!-- =================================================
+                 RELATED THESES
+            ================================================== -->
+
+            <aside class="related-theses-panel">
+
+
+                <h2>
+                    Related Theses
+                </h2>
+
+                <p class="related-method">
+                    Identified using TF-IDF and Cosine Similarity
+                </p>
+
+
+                <div class="related-list">
+
+
+                    {% for item in related_theses %}
+
+
+                        <a
+                            href="{{ url_for(
+                                'main.thesis_details',
+                                thesis_id=item.thesis.id
+                            ) }}"
+                            class="related-card"
+                        >
+
+
+                            <div class="related-card-top">
+
+                                <span class="similarity-badge">
+                                    {{ item.similarity }}% Similar
+                                </span>
+
+
+                                <span
+                                    class="
+                                        related-status
+                                        {% if item.thesis.availability == 'Available' %}
+                                        available
+                                        {% else %}
+                                        borrowed
+                                        {% endif %}
+                                    "
+                                >
+                                    {{ item.thesis.availability }}
+                                </span>
+
+                            </div>
+
+
+                            <strong class="related-title">
+                                {{ item.thesis.title }}
+                            </strong>
+
+
+                            <span class="related-meta">
+                                {{ item.thesis.author_researchers }}
+                                ·
+                                {{ item.thesis.year_published }}
+                            </span>
+
+
+                        </a>
+
+
+                    {% else %}
+
+
+                        <div class="related-empty">
+                            No related thesis found.
+                        </div>
+
+
+                    {% endfor %}
+
+
+                </div>
+
+
+            </aside>
+
+
+        </div>
+
+    </div>
+
+</section>
+
+
+{% endblock %}

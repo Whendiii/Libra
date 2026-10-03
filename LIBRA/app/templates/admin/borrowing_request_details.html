@@ -1,0 +1,761 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}
+Borrowing Request Details | LIBRA
+{% endblock %}
+
+{% block content %}
+
+<div class="borrow-detail-page">
+
+    <!-- =====================================================
+         PAGE HEADER
+    ====================================================== -->
+
+    <header class="borrow-detail-header">
+
+        <div>
+
+            <a
+                href="{{ url_for('admin.borrowing_requests') }}"
+                class="borrow-detail-back"
+            >
+                <i class="fa-solid fa-arrow-left"></i>
+                Back to Borrowing Requests
+            </a>
+
+            <span class="borrow-page-eyebrow">
+                BORROWING REQUEST
+            </span>
+
+            <h1>
+                Request Details
+            </h1>
+
+            <p>
+                Review borrower information, research details,
+                borrowing schedule, and the current transaction status.
+            </p>
+
+        </div>
+
+
+        <div class="borrow-detail-header-status">
+
+            <span>Current Status</span>
+
+            <strong class="
+                borrow-status
+                {{ borrowing_request.status|lower }}
+            ">
+                <span class="borrow-status-dot"></span>
+                {{ borrowing_request.status }}
+            </strong>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         REQUEST SUMMARY
+    ====================================================== -->
+
+    <section class="borrow-detail-summary-card">
+
+        <div class="borrow-detail-summary-item">
+
+            <div class="borrow-detail-summary-icon">
+                <i class="fa-solid fa-hashtag"></i>
+            </div>
+
+            <div>
+                <span>Request ID</span>
+
+                <strong class="borrow-detail-mono">
+                    {{ borrowing_request.request_id }}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="borrow-detail-summary-item">
+
+            <div class="borrow-detail-summary-icon">
+                <i class="fa-regular fa-calendar"></i>
+            </div>
+
+            <div>
+                <span>Request Date</span>
+
+                <strong>
+                    {% if borrowing_request.request_date %}
+                        {{ borrowing_request.request_date.strftime('%B %d, %Y') }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="borrow-detail-summary-item">
+
+            <div class="borrow-detail-summary-icon">
+                <i class="fa-regular fa-clock"></i>
+            </div>
+
+            <div>
+                <span>Request Time</span>
+
+                <strong>
+                    {% if borrowing_request.request_date %}
+                        {{ borrowing_request.request_date.strftime('%I:%M %p') }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </strong>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         DETAILS GRID
+    ====================================================== -->
+
+    <div class="borrow-detail-layout">
+
+
+        <!-- =================================================
+             LEFT COLUMN
+        ================================================== -->
+
+        <div class="borrow-detail-main">
+
+
+            <!-- BORROWER INFORMATION -->
+
+            <section class="borrow-detail-card">
+
+                <div class="borrow-detail-card-head">
+
+                    <div class="borrow-detail-card-icon green">
+                        <i class="fa-regular fa-user"></i>
+                    </div>
+
+                    <div>
+                        <span>PERSONAL INFORMATION</span>
+
+                        <h2>
+                            Borrower Information
+                        </h2>
+
+                        <p>
+                            Personal and account details supplied by the borrower.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="borrow-detail-info-grid">
+
+                    <div class="borrow-detail-info-item">
+                        <span>Full Name</span>
+                        <strong>{{ borrowing_request.full_name }}</strong>
+                    </div>
+
+                    <div class="borrow-detail-info-item">
+                        <span>User Type</span>
+                        <strong>{{ borrowing_request.user_type }}</strong>
+                    </div>
+
+                    <div class="borrow-detail-info-item">
+                        <span>Gender</span>
+                        <strong>{{ borrowing_request.gender or "—" }}</strong>
+                    </div>
+
+                    <div class="borrow-detail-info-item">
+                        <span>Age</span>
+                        <strong>
+                            {% if borrowing_request.age %}
+                                {{ borrowing_request.age }} years old
+                            {% else %}
+                                —
+                            {% endif %}
+                        </strong>
+                    </div>
+
+                    <div class="borrow-detail-info-item">
+                        <span>Year Level</span>
+                        <strong>{{ borrowing_request.year_level or "—" }}</strong>
+                    </div>
+
+                    <div class="borrow-detail-info-item borrow-detail-full">
+                        <span>Address</span>
+                        <strong>{{ borrowing_request.address or "—" }}</strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ACADEMIC INFORMATION -->
+
+            <section class="borrow-detail-card">
+
+                <div class="borrow-detail-card-head">
+
+                    <div class="borrow-detail-card-icon green">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+
+                    <div>
+                        <span>ACADEMIC PROFILE</span>
+
+                        <h2>
+                            Academic Information
+                        </h2>
+
+                        <p>
+                            Academic level, program, and department associated with the request.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="borrow-detail-info-grid">
+
+                    <div class="borrow-detail-info-item">
+
+                        <span>Academic Level</span>
+
+                        <strong>
+
+                            {% if borrowing_request.academic_level_id %}
+
+                                {% set level = namespace(value='—') %}
+
+                                {% for program in borrowing_request.thesis.program.department.programs %}
+
+                                    {% if program.academic_level_id == borrowing_request.academic_level_id %}
+
+                                        {% set level.value =
+                                            program.academic_level.academic_level
+                                        %}
+
+                                    {% endif %}
+
+                                {% endfor %}
+
+                                {{ level.value }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="borrow-detail-info-item">
+
+                        <span>Program / Course</span>
+
+                        <strong>
+
+                            {% if borrowing_request.program_id %}
+
+                                {% set requested_program = namespace(value='—') %}
+
+                                {% for program in borrowing_request.thesis.program.department.programs %}
+
+                                    {% if program.id == borrowing_request.program_id %}
+
+                                        {% set requested_program.value =
+                                            program.program_name
+                                        %}
+
+                                    {% endif %}
+
+                                {% endfor %}
+
+                                {{ requested_program.value }}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+
+                    <div class="borrow-detail-info-item borrow-detail-full">
+
+                        <span>Department / College</span>
+
+                        <strong>
+
+                            {% if borrowing_request.department_id %}
+
+                                {% if
+                                    borrowing_request.thesis.program.department.id
+                                    ==
+                                    borrowing_request.department_id
+                                %}
+
+                                    {{
+                                        borrowing_request.thesis.program.department.department_college
+                                    }}
+
+                                {% else %}
+
+                                    —
+
+                                {% endif %}
+
+                            {% else %}
+
+                                —
+
+                            {% endif %}
+
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- THESIS INFORMATION -->
+
+            <section class="borrow-detail-card">
+
+                <div class="borrow-detail-card-head">
+
+                    <div class="borrow-detail-card-icon gold">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+
+                    <div>
+                        <span>RESEARCH MATERIAL</span>
+
+                        <h2>
+                            Thesis Information
+                        </h2>
+
+                        <p>
+                            Research material selected by the borrower.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="borrow-detail-thesis-title">
+
+                    <span>Title</span>
+
+                    <strong>
+                        {{ borrowing_request.thesis.title }}
+                    </strong>
+
+                </div>
+
+
+                <div class="borrow-detail-info-grid">
+
+                    <div class="borrow-detail-info-item">
+                        <span>Thesis Code</span>
+                        <strong class="borrow-detail-mono">
+                            {{ borrowing_request.thesis.thesis_code }}
+                        </strong>
+                    </div>
+
+                    <div class="borrow-detail-info-item">
+                        <span>Author / Researchers</span>
+                        <strong>{{ borrowing_request.thesis.author_researchers }}</strong>
+                    </div>
+
+                    <div class="borrow-detail-info-item">
+                        <span>Program</span>
+                        <strong>{{ borrowing_request.thesis.program.program_name }}</strong>
+                    </div>
+
+                    <div class="borrow-detail-info-item">
+                        <span>Year Published</span>
+                        <strong>{{ borrowing_request.thesis.year_published }}</strong>
+                    </div>
+
+                    <div class="borrow-detail-info-item">
+                        <span>Shelf Location</span>
+                        <strong>
+                            <i class="fa-solid fa-location-dot borrow-detail-inline-icon"></i>
+                            {{ borrowing_request.thesis.shelf_location }}
+                        </strong>
+                    </div>
+
+                    <div class="borrow-detail-info-item">
+                        <span>Current Availability</span>
+                        <strong>{{ borrowing_request.thesis.availability }}</strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- =================================================
+             RIGHT COLUMN
+        ================================================== -->
+
+        <aside class="borrow-detail-side">
+
+
+            <!-- BORROWING DETAILS -->
+
+            <section class="borrow-detail-card borrow-detail-side-card">
+
+                <div class="borrow-detail-card-head compact">
+
+                    <div class="borrow-detail-card-icon gold">
+                        <i class="fa-regular fa-clock"></i>
+                    </div>
+
+                    <div>
+                        <span>BORROWING SCHEDULE</span>
+
+                        <h2>
+                            Borrowing Details
+                        </h2>
+                    </div>
+
+                </div>
+
+
+                <div class="borrow-detail-stack">
+
+                    <div class="borrow-detail-stack-item">
+
+                        <div>
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+
+                        <span>
+                            Duration
+                        </span>
+
+                        <strong>
+                            {% if borrowing_request.duration_hours %}
+                                {{ borrowing_request.duration_hours }} hour(s)
+                            {% else %}
+                                —
+                            {% endif %}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="borrow-detail-stack-item">
+
+                        <div>
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+
+                        <span>
+                            Borrowing Location
+                        </span>
+
+                        <strong>
+                            {{ borrowing_request.borrowing_location or "—" }}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="borrow-detail-stack-item">
+
+                        <div>
+                            <i class="fa-regular fa-calendar-check"></i>
+                        </div>
+
+                        <span>
+                            Requested Borrowing Time
+                        </span>
+
+                        <strong>
+                            {% if borrowing_request.requested_borrowing_time %}
+                                {{
+                                    borrowing_request.requested_borrowing_time.strftime(
+                                        '%B %d, %Y · %I:%M %p'
+                                    )
+                                }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="borrow-detail-stack-item">
+
+                        <div>
+                            <i class="fa-solid fa-arrow-rotate-left"></i>
+                        </div>
+
+                        <span>
+                            Expected Return Time
+                        </span>
+
+                        <strong>
+                            {% if borrowing_request.expected_return_time %}
+                                {{
+                                    borrowing_request.expected_return_time.strftime(
+                                        '%B %d, %Y · %I:%M %p'
+                                    )
+                                }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- STATUS / ACTION PANEL -->
+
+            <section class="
+                borrow-action-panel
+                status-{{ borrowing_request.status|lower }}
+            ">
+
+                {% if borrowing_request.status == "Requested" %}
+
+                    <div class="borrow-action-panel-head">
+
+                        <div class="borrow-action-state-icon">
+                            <i class="fa-regular fa-clock"></i>
+                        </div>
+
+                        <div>
+                            <span>WAITING FOR RELEASE</span>
+
+                            <h3>
+                                Request received
+                            </h3>
+                        </div>
+
+                    </div>
+
+
+                    <p>
+                        This request has been submitted, but the thesis is
+                        <strong>not yet considered borrowed</strong>.
+                        Mark it as Borrowed only after the physical thesis
+                        has been released to the borrower.
+                    </p>
+
+
+                    <div class="borrow-action-buttons">
+
+                        <a
+                            href="{{ url_for(
+                                'admin.borrowing_slip',
+                                request_id=borrowing_request.id
+                            ) }}"
+                            class="borrow-action-secondary"
+                        >
+                            <i class="fa-solid fa-file-arrow-down"></i>
+                            Download Slip
+                        </a>
+
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'admin.mark_as_borrowed',
+                                request_id=borrowing_request.id
+                            ) }}"
+                            class="mark-borrowed-form"
+                        >
+                            <button
+                                type="submit"
+                                class="borrow-action-primary"
+                            >
+                                <i class="fa-solid fa-book-open-reader"></i>
+                                Mark as Borrowed
+                            </button>
+                        </form>
+
+                    </div>
+
+
+                {% elif borrowing_request.status == "Borrowed" %}
+
+                    <div class="borrow-action-panel-head">
+
+                        <div class="borrow-action-state-icon">
+                            <i class="fa-solid fa-book-open-reader"></i>
+                        </div>
+
+                        <div>
+                            <span>ACTIVE BORROWING</span>
+
+                            <h3>
+                                Thesis currently borrowed
+                            </h3>
+                        </div>
+
+                    </div>
+
+
+                    <p>
+                        The thesis has already been physically released,
+                        and an active borrowing transaction is recorded in LIBRA.
+                    </p>
+
+
+                    <div class="borrow-action-buttons">
+
+                        <a
+                            href="{{ url_for(
+                                'admin.borrowing_slip',
+                                request_id=borrowing_request.id
+                            ) }}"
+                            class="borrow-action-secondary"
+                        >
+                            <i class="fa-solid fa-file-arrow-down"></i>
+                            Download Slip
+                        </a>
+
+
+                        <a
+                            href="{{ url_for('admin.transactions') }}"
+                            class="borrow-action-primary"
+                        >
+                            <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                            View Transaction
+                        </a>
+
+                    </div>
+
+
+                {% elif borrowing_request.status == "Returned" %}
+
+                    <div class="borrow-action-panel-head">
+
+                        <div class="borrow-action-state-icon">
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+
+                        <div>
+                            <span>TRANSACTION COMPLETE</span>
+
+                            <h3>
+                                Thesis returned
+                            </h3>
+                        </div>
+
+                    </div>
+
+
+                    <p>
+                        This borrowing transaction has been completed
+                        and the thesis has been recorded as returned.
+                    </p>
+
+
+                    <div class="borrow-action-buttons">
+
+                        <a
+                            href="{{ url_for(
+                                'admin.borrowing_slip',
+                                request_id=borrowing_request.id
+                            ) }}"
+                            class="borrow-action-secondary"
+                        >
+                            <i class="fa-solid fa-file-arrow-down"></i>
+                            Download Slip
+                        </a>
+
+                    </div>
+
+                {% endif %}
+
+            </section>
+
+        </aside>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     MARK AS BORROWED CONFIRMATION
+========================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const form =
+            document.querySelector(
+                ".mark-borrowed-form"
+            );
+
+
+        if (!form) {
+            return;
+        }
+
+
+        form.addEventListener(
+            "submit",
+            function (event) {
+
+                const confirmed =
+                    confirm(
+                        "Mark this thesis as Borrowed?\n\n" +
+                        "Only continue if the physical thesis " +
+                        "has already been released to the borrower."
+                    );
+
+
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}

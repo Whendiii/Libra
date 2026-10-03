@@ -1,0 +1,865 @@
+{% extends "admin/base_admin.html" %}
+
+
+{% block title %}
+Thesis Management | LIBRA
+{% endblock %}
+
+
+{% block content %}
+
+
+<!-- =========================================================
+     PAGE HEADER
+========================================================= -->
+
+<div class="thesis-admin-header">
+
+    <div>
+
+        <h1>
+            Thesis Management
+        </h1>
+
+        <p>
+            Manage thesis and capstone research records
+            available in the LIBRA repository.
+        </p>
+
+    </div>
+
+
+    <a
+        href="{{ url_for('admin.add_thesis') }}"
+        class="admin-add-thesis-btn"
+    >
+
+        <i class="fa-solid fa-plus"></i>
+
+        Add Thesis
+
+    </a>
+
+</div>
+
+
+
+<!-- =========================================================
+     FLASH MESSAGES
+========================================================= -->
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+
+    {% if messages %}
+
+        <div class="admin-flash-container">
+
+            {% for category, message in messages %}
+
+                <div
+                    class="
+                        admin-flash-message
+                        {% if category == 'success' %}
+                            success
+                        {% else %}
+                            error
+                        {% endif %}
+                    "
+                >
+
+                    {% if category == 'success' %}
+
+                        <i class="fa-solid fa-circle-check"></i>
+
+                    {% else %}
+
+                        <i class="fa-solid fa-circle-exclamation"></i>
+
+                    {% endif %}
+
+                    <span>
+                        {{ message }}
+                    </span>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    {% endif %}
+
+{% endwith %}
+
+
+
+<!-- =========================================================
+     SEARCH AND FILTERS
+========================================================= -->
+
+<section class="thesis-filter-card">
+
+
+    <form
+        method="GET"
+        action="{{ url_for('admin.thesis_management') }}"
+        class="thesis-filter-form"
+    >
+
+
+        <!-- SEARCH -->
+
+        <div class="thesis-admin-search">
+
+            <i class="fa-solid fa-magnifying-glass"></i>
+
+            <input
+                type="text"
+                name="q"
+                value="{{ search_text }}"
+                placeholder="Search title, author, thesis code, field, topic, keyword..."
+            >
+
+        </div>
+
+
+
+        <!-- FILTER GRID -->
+
+        <div class="thesis-filter-grid">
+
+
+            <!-- ACADEMIC LEVEL -->
+
+            <div class="thesis-filter-field">
+
+                <label>
+                    Academic Level
+                </label>
+
+                <select
+                    name="level"
+                    id="adminLevelFilter"
+                >
+
+                    <option value="">
+                        All Levels
+                    </option>
+
+                    {% for level in academic_levels %}
+
+                        <option
+                            value="{{ level.id }}"
+                            {% if selected_level|string == level.id|string %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ level.academic_level }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+
+            <!-- DEPARTMENT -->
+
+            <div class="thesis-filter-field">
+
+                <label>
+                    Department / College
+                </label>
+
+                <select
+                    name="department"
+                    id="adminDepartmentFilter"
+                >
+
+                    <option value="">
+                        All Departments
+                    </option>
+
+                    {% for department in departments %}
+
+                        <option
+                            value="{{ department.id }}"
+                            {% if selected_department|string == department.id|string %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ department.department_college }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+
+            <!-- PROGRAM -->
+
+            <div class="thesis-filter-field">
+
+                <label>
+                    Program / Course
+                </label>
+
+                <select
+                    name="program"
+                    id="adminProgramFilter"
+                >
+
+                    <option value="">
+                        All Programs
+                    </option>
+
+                    {% for program in programs %}
+
+                        <option
+                            value="{{ program.id }}"
+                            data-level="{{ program.academic_level_id }}"
+                            data-department="{{ program.department_id }}"
+                            {% if selected_program|string == program.id|string %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ program.program_name }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+
+            <!-- YEAR -->
+
+            <div class="thesis-filter-field">
+
+                <label>
+                    Year Published
+                </label>
+
+                <select name="year">
+
+                    <option value="">
+                        All Years
+                    </option>
+
+                    {% for year in years %}
+
+                        <option
+                            value="{{ year }}"
+                            {% if selected_year|string == year|string %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ year }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+
+            <!-- AVAILABILITY -->
+
+            <div class="thesis-filter-field">
+
+                <label>
+                    Availability
+                </label>
+
+                <select name="availability">
+
+                    <option value="">
+                        All Status
+                    </option>
+
+                    <option
+                        value="Available"
+                        {% if selected_availability == "Available" %}
+                            selected
+                        {% endif %}
+                    >
+                        Available
+                    </option>
+
+                    <option
+                        value="Borrowed"
+                        {% if selected_availability == "Borrowed" %}
+                            selected
+                        {% endif %}
+                    >
+                        Borrowed
+                    </option>
+
+                </select>
+
+            </div>
+
+
+        </div>
+
+
+
+        <!-- FILTER ACTIONS -->
+
+        <div class="thesis-filter-actions">
+
+
+            <a
+                href="{{ url_for('admin.thesis_management') }}"
+                class="admin-clear-filter-btn"
+            >
+
+                Clear Filters
+
+            </a>
+
+
+            <button
+                type="submit"
+                class="admin-apply-filter-btn"
+            >
+
+                <i class="fa-solid fa-filter"></i>
+
+                Apply Filters
+
+            </button>
+
+
+        </div>
+
+
+    </form>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     RESULT SUMMARY
+========================================================= -->
+
+<div class="thesis-result-heading">
+
+
+    <div>
+
+        <h2>
+            Thesis Records
+        </h2>
+
+        <p>
+
+            Showing
+
+            <strong>
+                {{ theses|length }}
+            </strong>
+
+            of
+
+            <strong>
+                {{ pagination.total }}
+            </strong>
+
+            matching records
+
+        </p>
+
+    </div>
+
+
+</div>
+
+
+
+<!-- =========================================================
+     THESIS TABLE
+========================================================= -->
+
+<section class="thesis-admin-table-card">
+
+
+    <div class="thesis-admin-table-wrap">
+
+
+        <table class="thesis-admin-table">
+
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Thesis Code
+                    </th>
+
+                    <th>
+                        Research Information
+                    </th>
+
+                    <th>
+                        Program
+                    </th>
+
+                    <th>
+                        Year
+                    </th>
+
+                    <th>
+                        Shelf
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Actions
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+
+            <tbody>
+
+
+                {% for thesis in theses %}
+
+
+                    <tr>
+
+
+                        <!-- THESIS CODE -->
+
+                        <td>
+
+                            <span class="thesis-code-cell">
+                                {{ thesis.thesis_code }}
+                            </span>
+
+                        </td>
+
+
+
+                        <!-- TITLE / AUTHORS -->
+
+                        <td>
+
+                            <div class="thesis-information-cell">
+
+
+                                <strong title="{{ thesis.title }}">
+                                    {{ thesis.title }}
+                                </strong>
+
+
+                                <span>
+
+                                    <i class="fa-regular fa-user"></i>
+
+                                    {{ thesis.author_researchers }}
+
+                                </span>
+
+
+                                {% if thesis.research_field %}
+
+                                    <small>
+                                        {{ thesis.research_field }}
+                                    </small>
+
+                                {% endif %}
+
+
+                            </div>
+
+                        </td>
+
+
+
+                        <!-- PROGRAM -->
+
+                        <td>
+
+                            <div class="thesis-program-cell">
+
+                                <strong>
+                                    {{ thesis.program.program_code }}
+                                </strong>
+
+                                <span>
+                                    {{ thesis.program.program_name }}
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+
+                        <!-- YEAR -->
+
+                        <td>
+
+                            {{ thesis.year_published }}
+
+                        </td>
+
+
+
+                        <!-- SHELF -->
+
+                        <td>
+
+                            <span class="thesis-shelf-cell">
+
+                                <i class="fa-solid fa-location-dot"></i>
+
+                                {{ thesis.shelf_location }}
+
+                            </span>
+
+                        </td>
+
+
+
+                        <!-- AVAILABILITY -->
+
+                        <td>
+
+                            <span
+                                class="
+                                    thesis-admin-status
+
+                                    {% if thesis.availability == 'Available' %}
+                                        available
+                                    {% else %}
+                                        borrowed
+                                    {% endif %}
+                                "
+                            >
+
+                                {{ thesis.availability }}
+
+                            </span>
+
+                        </td>
+
+
+
+                        <!-- ACTIONS -->
+
+                        <td>
+
+                            <div class="thesis-action-buttons">
+
+
+                                <!-- EDIT -->
+
+                                <a
+                                    href="{{ url_for(
+                                        'admin.edit_thesis',
+                                        thesis_id=thesis.id
+                                    ) }}"
+                                    class="thesis-edit-btn"
+                                    title="Edit thesis"
+                                >
+
+                                    <i class="fa-regular fa-pen-to-square"></i>
+
+                                    Edit
+
+                                </a>
+
+
+
+                                <!-- ARCHIVE -->
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'admin.archive_thesis',
+                                        thesis_id=thesis.id
+                                    ) }}"
+                                    class="archive-thesis-form"
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="thesis-archive-btn"
+                                        title="Archive thesis"
+                                    >
+
+                                        <i class="fa-solid fa-box-archive"></i>
+
+                                        Archive
+
+                                    </button>
+
+                                </form>
+
+
+                            </div>
+
+                        </td>
+
+
+                    </tr>
+
+
+                {% else %}
+
+
+                    <tr>
+
+                        <td
+                            colspan="7"
+                            class="thesis-admin-empty"
+                        >
+
+                            <div>
+
+                                <i class="fa-solid fa-book-open"></i>
+
+                                <h3>
+                                    No thesis records found
+                                </h3>
+
+                                <p>
+                                    Try changing your search or filters.
+                                </p>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+
+                {% endfor %}
+
+
+            </tbody>
+
+
+        </table>
+
+
+    </div>
+
+
+</section>
+
+
+
+<!-- =========================================================
+     PAGINATION
+========================================================= -->
+
+{% if pagination.pages > 1 %}
+
+    <div class="thesis-admin-pagination">
+
+
+        <!-- PREVIOUS -->
+
+        {% if pagination.has_prev %}
+
+            <a
+                href="{{ url_for(
+                    'admin.thesis_management',
+                    page=pagination.prev_num,
+                    q=search_text,
+                    level=selected_level,
+                    department=selected_department,
+                    program=selected_program,
+                    year=selected_year,
+                    availability=selected_availability
+                ) }}"
+                class="pagination-arrow"
+            >
+
+                <i class="fa-solid fa-chevron-left"></i>
+
+            </a>
+
+        {% else %}
+
+            <span class="pagination-arrow disabled">
+
+                <i class="fa-solid fa-chevron-left"></i>
+
+            </span>
+
+        {% endif %}
+
+
+
+        <!-- PAGE NUMBERS -->
+
+        {% for page_number in pagination.iter_pages(
+            left_edge=1,
+            right_edge=1,
+            left_current=2,
+            right_current=2
+        ) %}
+
+
+            {% if page_number %}
+
+
+                {% if page_number == pagination.page %}
+
+                    <span class="pagination-number active">
+
+                        {{ page_number }}
+
+                    </span>
+
+
+                {% else %}
+
+
+                    <a
+                        href="{{ url_for(
+                            'admin.thesis_management',
+                            page=page_number,
+                            q=search_text,
+                            level=selected_level,
+                            department=selected_department,
+                            program=selected_program,
+                            year=selected_year,
+                            availability=selected_availability
+                        ) }}"
+                        class="pagination-number"
+                    >
+
+                        {{ page_number }}
+
+                    </a>
+
+
+                {% endif %}
+
+
+            {% else %}
+
+                <span class="pagination-dots">
+                    ...
+                </span>
+
+            {% endif %}
+
+
+        {% endfor %}
+
+
+
+        <!-- NEXT -->
+
+        {% if pagination.has_next %}
+
+            <a
+                href="{{ url_for(
+                    'admin.thesis_management',
+                    page=pagination.next_num,
+                    q=search_text,
+                    level=selected_level,
+                    department=selected_department,
+                    program=selected_program,
+                    year=selected_year,
+                    availability=selected_availability
+                ) }}"
+                class="pagination-arrow"
+            >
+
+                <i class="fa-solid fa-chevron-right"></i>
+
+            </a>
+
+        {% else %}
+
+            <span class="pagination-arrow disabled">
+
+                <i class="fa-solid fa-chevron-right"></i>
+
+            </span>
+
+        {% endif %}
+
+
+    </div>
+
+{% endif %}
+
+
+
+<!-- =========================================================
+     ARCHIVE CONFIRMATION
+========================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const archiveForms =
+            document.querySelectorAll(
+                ".archive-thesis-form"
+            );
+
+
+        archiveForms.forEach(
+            function (form) {
+
+                form.addEventListener(
+                    "submit",
+                    function (event) {
+
+                        const confirmed =
+                            confirm(
+                                "Archive this thesis record?\n\n" +
+                                "The thesis will no longer appear " +
+                                "in the public repository."
+                            );
+
+
+                        if (!confirmed) {
+
+                            event.preventDefault();
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+
+{% endblock %}
